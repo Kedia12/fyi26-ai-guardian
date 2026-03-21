@@ -6,6 +6,7 @@ from rules import (
     check_low_battery,
     check_gps_jump,
     check_gps_imu_inconsistency,
+    check_ml_anomaly,
 )
 from ml_model import GuardianML
 
@@ -31,6 +32,7 @@ class GuardianEngine:
         anomaly_score = self.ml.score_row(row)
         if anomaly_score is not None:
             row["ml_anomaly_score"] = anomaly_score
+
 
         self.prev_row = row
         return alerts, anomaly_score
