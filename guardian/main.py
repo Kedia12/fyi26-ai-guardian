@@ -7,7 +7,9 @@ def run(path):
     engine = GuardianEngine()
 
     for row in replay_csv(path):
-        alerts = engine.process_row(row)
+        alerts, anomaly_score = engine.process_row(row)
+
+        print(f"packet={row['packet_id']} ml_anomaly_score={anomaly_score:.4f}")
 
         if alerts:
             for alert in alerts:
@@ -16,5 +18,5 @@ def run(path):
 
 if __name__ == "__main__":
     project_root = Path(__file__).resolve().parent.parent
-    csv_path = project_root / "data" / "scenarios" / "gps_jump.csv"
+    csv_path = project_root / "data" / "scenarios" / "normal_flight.csv"
     run(csv_path)
