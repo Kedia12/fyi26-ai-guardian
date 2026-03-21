@@ -108,3 +108,47 @@ def check_gps_jump(prev_row, row):
         )
 
     return alerts
+
+
+def check_gps_imu_inconsistency(prev_row, row):
+    alerts = []
+
+    if prev_row is None:
+        return alerts
+
+    prev_lat = float(prev_row["gps_lat_deg"])
+    prev_lon = float(prev_row["gps_lon_deg"])
+    curr_lat = float(row["gps_lat_deg"])
+    curr_lon = float(row["gps_lon_deg"])
+
+    lat_jump = abs(curr_lat - prev_lat)
+    lon_jump = abs(curr_lon - prev_lon)
+
+    accel_mag = (
+        abs(float(row["accel_x_g"])) +
+        abs(float(row["accel_y_g"])) +
+        abs(float(row["accel_z_g"]) - 1.0)
+    )
+
+    gyro_mag = (
+        abs(float(row["gyro_x_dps"])) +
+        abs(float(row["gyro_y_dps"])) +
+        abs(float(row["gyro_z_dps"]))
+    )
+
+    gps_big_change = lat_jump > 0.001 or lon_jump > 0.001
+    imu_low_motion = accel_mag < 0.2 and gyro_mag < 3.0
+
+    if gps_big_change and imu_low_motion:
+        alerts.append(
+            build_alert(
+                row=row,
+                severity="CRITICAL",
+                confidence=0.96,
+                reason_code="GPS_IMU_INCONSISTENCY",
+                reason_text="GPS changed significantly without matching IMU motion.",
+                recommended_action="VERIFY_OPERATOR_AND_ENTER_DEGRADED_MODE",
+            )
+        )
+
+    return alerts
