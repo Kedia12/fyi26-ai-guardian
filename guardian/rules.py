@@ -152,3 +152,4 @@ def check_gps_imu_inconsistency(prev_row, row):
         )
 
     return alerts
+    
