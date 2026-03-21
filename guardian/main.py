@@ -16,5 +16,5 @@ def run(path):
 
 if __name__ == "__main__":
     project_root = Path(__file__).resolve().parent.parent
-    csv_path = project_root / "data" / "scenarios" / "low_battery.csv"
+    csv_path = project_root / "data" / "scenarios" / "packet_loss.csv"
     run(csv_path)
