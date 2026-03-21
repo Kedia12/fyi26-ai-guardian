@@ -75,3 +75,36 @@ def check_low_battery(row):
         )
 
     return alerts
+
+
+def check_gps_jump(prev_row, row):
+    alerts = []
+
+    if prev_row is None:
+        return alerts
+
+    prev_lat = float(prev_row["gps_lat_deg"])
+    prev_lon = float(prev_row["gps_lon_deg"])
+    prev_speed = float(prev_row["gps_speed_mps"])
+
+    curr_lat = float(row["gps_lat_deg"])
+    curr_lon = float(row["gps_lon_deg"])
+    curr_speed = float(row["gps_speed_mps"])
+
+    lat_jump = abs(curr_lat - prev_lat)
+    lon_jump = abs(curr_lon - prev_lon)
+    speed_jump = abs(curr_speed - prev_speed)
+
+    if lat_jump > 0.001 or lon_jump > 0.001 or speed_jump > 15:
+        alerts.append(
+            build_alert(
+                row=row,
+                severity="CRITICAL",
+                confidence=0.95,
+                reason_code="GPS_JUMP",
+                reason_text="GPS position or speed changed abruptly beyond expected limits.",
+                recommended_action="VERIFY_OPERATOR",
+            )
+        )
+
+    return alerts
