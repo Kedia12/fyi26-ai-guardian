@@ -1,4 +1,3 @@
-# ML model will be added later (Isolation Forest)
 import pandas as pd
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
@@ -29,7 +28,18 @@ class GuardianML:
 
     def train_from_csv(self, path):
         df = pd.read_csv(path)
+
+        missing_features = [feature for feature in FEATURES if feature not in df.columns]
+        if missing_features:
+            raise ValueError(
+                f"Training data is missing required features: {missing_features}"
+            )
+
         X = df[FEATURES].copy()
+        X = X.apply(pd.to_numeric, errors="coerce")
+
+        if X.isnull().any().any():
+            raise ValueError("Training data contains missing or invalid feature values.")
 
         X_scaled = self.scaler.fit_transform(X)
         self.model.fit(X_scaled)
@@ -39,10 +49,17 @@ class GuardianML:
         if not self.is_trained:
             return None
 
-        X = pd.DataFrame([{
-            feature: float(row[feature]) for feature in FEATURES
-        }])
+        values = {}
+        for feature in FEATURES:
+            value = row.get(feature, None)
+            if value in (None, ""):
+                return None
+            try:
+                values[feature] = float(value)
+            except (TypeError, ValueError):
+                return None
 
+        X = pd.DataFrame([values])
         X_scaled = self.scaler.transform(X)
 
         # decision_function: higher = more normal, lower = more abnormal
@@ -50,3 +67,4 @@ class GuardianML:
         anomaly_score = -normality_score
 
         return float(anomaly_score)
+        
