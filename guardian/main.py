@@ -3,12 +3,15 @@ import sys
 
 from guardian.replay import replay_csv
 from guardian.engine import GuardianEngine
+from guardian.utils import print_banner, format_alert, print_replay_summary
 
 
 def run(path):
     engine = GuardianEngine()
     total_rows = 0
     total_alerts = 0
+
+    print_banner()
 
     for row in replay_csv(path):
         alerts, anomaly_score = engine.process_row(row)
@@ -21,11 +24,9 @@ def run(path):
             print(f"packet={row['packet_id']} ml_anomaly_score={anomaly_score:.4f}")
 
         for alert in alerts:
-            print(alert)
+            print(format_alert(alert))
 
-    print("\nReplay complete.")
-    print(f"Rows processed: {total_rows}")
-    print(f"Alerts generated: {total_alerts}")
+    print_replay_summary(total_rows, total_alerts)
 
 
 if __name__ == "__main__":
