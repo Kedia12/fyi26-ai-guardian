@@ -22,3 +22,28 @@ REQUIRED_FIELDS = [
     "link_status",
     "mode_state",
 ]
+
+REQUIRED_ALERT_FIELDS = [
+    "timestamp_ms",
+    "packet_id",
+    "node_id",
+    "severity",
+    "confidence",
+    "reason_code",
+    "reason_text",
+    "recommended_action",
+    "alert_status",
+]
+
+
+def get_missing_fields(row, required_fields):
+    return [field for field in required_fields if field not in row or row[field] in (None, "")]
+
+
+def validate_telemetry_row(row):
+    return get_missing_fields(row, REQUIRED_FIELDS) == []
+
+
+def validate_alert(alert):
+    return get_missing_fields(alert, REQUIRED_ALERT_FIELDS) == []
+    
