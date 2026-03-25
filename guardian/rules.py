@@ -1,4 +1,4 @@
-from alerts import build_alert
+from guardian.alerts import build_alert
 
 """
 Deterministic rule-based anomaly checks for the Guardian.
@@ -308,4 +308,3 @@ def check_gps_imu_inconsistency(prev_row, row):
         )
 
     return alerts
-    
