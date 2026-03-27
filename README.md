@@ -79,6 +79,10 @@ Current replay scenarios include:
 - CSV-based scenario replay
 - planned RC aircraft telemetry integration
 
+## Sample results
+Replay outputs can be saved in:
+- `results/sample_alert_logs/`
+
 ## How to run
 Run the default scenario:
 
