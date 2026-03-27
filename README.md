@@ -84,6 +84,9 @@ Replay outputs can be saved in:
 - `results/sample_alert_logs/`
 Replay outputs are available in `results/sample_alert_logs/`.
 
+It also includes an initial scenario-level validation summary in:
+- `results/metrics/validation_summary.md`
+
 ## How to run
 Run the default scenario:
 
