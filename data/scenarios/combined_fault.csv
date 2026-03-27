@@ -1,0 +1,5 @@
+timestamp_ms,packet_id,node_id,accel_x_g,accel_y_g,accel_z_g,gyro_x_dps,gyro_y_dps,gyro_z_dps,temperature_c,pressure_hpa,altitude_est_m,battery_voltage_v,low_power_flag,gps_lat_deg,gps_lon_deg,gps_alt_m,gps_speed_mps,gps_fix_status,satellite_count,link_status,mode_state
+1000,1,aircraft_01,0.01,0.02,1.00,0.5,0.4,0.3,25.0,1013.2,120.0,11.1,0,-1.9500,30.0600,121.0,10.0,1,8,connected,normal
+1100,2,aircraft_01,0.02,0.01,1.01,0.6,0.3,0.2,25.1,1013.1,120.5,10.4,1,-1.9499,30.0601,121.2,10.2,1,8,connected,normal
+1400,4,aircraft_01,0.00,0.00,0.00,0.0,0.0,0.0,25.2,1013.0,121.0,10.1,1,-1.9300,30.0900,150.0,35.0,0,2,weak,degraded
+1500,4,aircraft_01,0.00,0.00,0.00,0.0,0.0,0.0,25.3,1012.9,121.5,10.0,1,-1.9300,30.0900,150.0,35.0,0,2,weak,degraded

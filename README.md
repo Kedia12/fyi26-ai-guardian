@@ -64,6 +64,11 @@ Current replay scenarios include:
 - `sensor_dropout.csv`
 - `gps_jump.csv`
 - `low_battery.csv`
+- `out_of_order_packets.csv`
+- `duplicate_packet.csv`
+- `frozen_imu.csv`
+- `gps_fix_loss.csv`
+- `combined_fault.csv`
 
 ## Tech stack
 - Python
