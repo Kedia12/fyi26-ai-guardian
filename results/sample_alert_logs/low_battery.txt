@@ -1,0 +1,13 @@
+=== Guardian Module Running ===
+packet=1 ml_anomaly_score=-0.0678
+packet=2 ml_anomaly_score=0.0206
+packet=3 ml_anomaly_score=-0.0011
+[WARNING] LOW_BATTERY | confidence=0.97 | action=ENTER_SAFE_MODE | status=active
+packet=4 ml_anomaly_score=0.0081
+[WARNING] LOW_BATTERY | confidence=0.97 | action=ENTER_SAFE_MODE | status=active
+packet=5 ml_anomaly_score=0.0286
+[CRITICAL] LOW_BATTERY | confidence=0.97 | action=ENTER_SAFE_MODE | status=active
+
+Replay complete.
+Rows processed: 5
+Alerts generated: 3

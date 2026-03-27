@@ -1,0 +1,21 @@
+=== Guardian Module Running ===
+packet=1 ml_anomaly_score=-0.0072
+packet=2 ml_anomaly_score=0.0222
+[WARNING] LOW_BATTERY | confidence=0.97 | action=ENTER_SAFE_MODE | status=active
+packet=4 ml_anomaly_score=0.0482
+[WARNING] PACKET_LOSS | confidence=0.85 | action=CHECK_LINK | status=active
+[WARNING] IMU_DROPOUT | confidence=0.92 | action=CHECK_SENSOR | status=active
+[CRITICAL] LOW_BATTERY | confidence=0.97 | action=ENTER_SAFE_MODE | status=active
+[WARNING] GPS_FIX_LOSS | confidence=0.90 | action=REQUEST_VERIFICATION | status=active
+[CRITICAL] GPS_JUMP | confidence=0.95 | action=VERIFY_OPERATOR | status=active
+packet=4 ml_anomaly_score=0.0351
+[WARNING] PACKET_LOSS | confidence=0.85 | action=CHECK_LINK | status=active
+[WARNING] DUPLICATE_PACKET | confidence=0.88 | action=CHECK_LINK | status=active
+[WARNING] IMU_DROPOUT | confidence=0.92 | action=CHECK_SENSOR | status=active
+[WARNING] IMU_FROZEN | confidence=0.80 | action=CHECK_SENSOR | status=active
+[CRITICAL] LOW_BATTERY | confidence=0.97 | action=ENTER_SAFE_MODE | status=active
+[WARNING] GPS_FIX_LOSS | confidence=0.90 | action=REQUEST_VERIFICATION | status=active
+
+Replay complete.
+Rows processed: 4
+Alerts generated: 12

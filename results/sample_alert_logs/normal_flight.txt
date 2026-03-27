@@ -1,0 +1,10 @@
+=== Guardian Module Running ===
+packet=1 ml_anomaly_score=-0.0871
+packet=2 ml_anomaly_score=0.0112
+packet=3 ml_anomaly_score=-0.0447
+packet=4 ml_anomaly_score=-0.0795
+packet=5 ml_anomaly_score=-0.0543
+
+Replay complete.
+Rows processed: 5
+Alerts generated: 0

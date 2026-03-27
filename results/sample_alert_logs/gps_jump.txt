@@ -1,0 +1,14 @@
+=== Guardian Module Running ===
+packet=1 ml_anomaly_score=-0.0871
+packet=2 ml_anomaly_score=0.0112
+packet=3 ml_anomaly_score=-0.0320
+[CRITICAL] GPS_JUMP | confidence=0.95 | action=VERIFY_OPERATOR | status=active
+[CRITICAL] GPS_IMU_INCONSISTENCY | confidence=0.96 | action=VERIFY_OPERATOR_AND_ENTER_DEGRADED_MODE | status=active
+packet=4 ml_anomaly_score=-0.0678
+packet=5 ml_anomaly_score=-0.0543
+[CRITICAL] GPS_JUMP | confidence=0.95 | action=VERIFY_OPERATOR | status=active
+[CRITICAL] GPS_IMU_INCONSISTENCY | confidence=0.96 | action=VERIFY_OPERATOR_AND_ENTER_DEGRADED_MODE | status=active
+
+Replay complete.
+Rows processed: 5
+Alerts generated: 4

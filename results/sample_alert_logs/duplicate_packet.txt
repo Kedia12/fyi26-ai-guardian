@@ -1,0 +1,12 @@
+=== Guardian Module Running ===
+packet=1 ml_anomaly_score=-0.0072
+packet=2 ml_anomaly_score=0.0222
+packet=2 ml_anomaly_score=0.0222
+[WARNING] PACKET_LOSS | confidence=0.85 | action=CHECK_LINK | status=active
+[WARNING] DUPLICATE_PACKET | confidence=0.88 | action=CHECK_LINK | status=active
+[WARNING] IMU_FROZEN | confidence=0.80 | action=CHECK_SENSOR | status=active
+packet=3 ml_anomaly_score=0.0482
+
+Replay complete.
+Rows processed: 4
+Alerts generated: 3
