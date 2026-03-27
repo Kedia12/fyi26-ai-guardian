@@ -82,6 +82,7 @@ Current replay scenarios include:
 ## Sample results
 Replay outputs can be saved in:
 - `results/sample_alert_logs/`
+Replay outputs are available in `results/sample_alert_logs/`.
 
 ## How to run
 Run the default scenario:
