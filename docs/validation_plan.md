@@ -1,3 +1,8 @@
+# Validation Plan
+
+## Goal
+Validate that the Guardian detects key connected-system anomalies and produces explainable alerts with consistent recommended actions.
+
 ## Scenario-based validation
 
 ### normal_flight.csv
@@ -50,4 +55,14 @@ Expected result:
   - `IMU_FROZEN`
   - `GPS_FIX_LOSS`
   - `GPS_JUMP`
-  
+
+## Metrics
+The prototype will later be evaluated using:
+- detection latency
+- false-alarm rate
+- missed detections
+- alert consistency
+- operator response time
+
+## Current scope
+Current validation is based on replayable CSV scenarios and automated unit tests. Later phases will include live telemetry from an RC aircraft testbed.

@@ -31,6 +31,7 @@ The current prototype is focused on:
 - scoring telemetry with a lightweight ML anomaly model
 - generating structured alerts
 - validating core logic through automated tests
+- exploring both isolated and combined anomaly scenarios
 
 In later phases, the same architecture is intended to connect to a real RC aircraft telemetry node with onboard sensors.
 
