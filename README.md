@@ -80,12 +80,17 @@ Current replay scenarios include:
 - planned RC aircraft telemetry integration
 
 ## Sample results
-Replay outputs can be saved in:
+The repository includes sample replay outputs in:
 - `results/sample_alert_logs/`
-Replay outputs are available in `results/sample_alert_logs/`.
 
-It also includes an initial scenario-level validation summary in:
+It also includes validation artifacts in:
 - `results/metrics/validation_summary.md`
+- `results/metrics/scenario_metrics.csv`
+
+The scenario metrics file can be regenerated automatically with:
+
+```bash
+python3 -m guardian.metrics
 
 ## How to run
 Run the default scenario:
