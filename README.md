@@ -92,3 +92,6 @@ Run the default scenario:
 
 ```bash
 python -m guardian.main
+
+Additional scenario-level metrics are available in:
+- `results/metrics/scenario_metrics.csv`
