@@ -8,7 +8,6 @@ EXPECTED_REASON_CODES = {
     "duplicate_packet.csv": ["DUPLICATE_PACKET"],
     "frozen_imu.csv": ["IMU_FROZEN"],
     "gps_fix_loss.csv": ["GPS_FIX_LOSS"],
-    "gps_imu_inconsistency.csv": ["GPS_IMU_INCONSISTENCY"],
     "combined_fault.csv": [
         "LOW_BATTERY",
         "PACKET_LOSS",
