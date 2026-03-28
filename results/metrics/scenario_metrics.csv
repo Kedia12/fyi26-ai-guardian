@@ -1,8 +1,9 @@
 scenario,rows_processed,alerts_generated,warning_alerts,critical_alerts,observed_reason_codes
 combined_fault.csv,4,12,9,3,LOW_BATTERY;PACKET_LOSS;IMU_DROPOUT;GPS_FIX_LOSS;GPS_JUMP;DUPLICATE_PACKET;IMU_FROZEN
-duplicate_packet.csv,4,3,3,0,PACKET_LOSS;DUPLICATE_PACKET;IMU_FROZEN
+duplicate_packet.csv,4,2,2,0,PACKET_LOSS;DUPLICATE_PACKET
 frozen_imu.csv,4,2,2,0,IMU_FROZEN
 gps_fix_loss.csv,4,2,2,0,GPS_FIX_LOSS
+gps_imu_inconsistency.csv,4,2,0,2,GPS_JUMP;GPS_IMU_INCONSISTENCY
 gps_jump.csv,5,4,0,4,GPS_JUMP;GPS_IMU_INCONSISTENCY
 low_battery.csv,5,3,2,1,LOW_BATTERY
 normal_flight.csv,5,0,0,0,NONE

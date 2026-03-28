@@ -33,6 +33,10 @@ This document summarizes the primary expected alert outcome for each replay scen
 - `gps_fix_loss.csv`
   - expected: `GPS_FIX_LOSS`
 
+- `gps_imu_inconsistency.csv`
+  - expected: `GPS_IMU_INCONSISTENCY`
+  - possible additional alert: `GPS_JUMP`
+
 - `combined_fault.csv`
   - expected: multiple alerts, including:
     - `LOW_BATTERY`

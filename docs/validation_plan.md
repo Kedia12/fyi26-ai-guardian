@@ -64,5 +64,10 @@ The prototype will later be evaluated using:
 - alert consistency
 - operator response time
 
+### gps_imu_inconsistency.csv
+Expected result:
+- `GPS_IMU_INCONSISTENCY`
+- may also trigger `GPS_JUMP` because the navigation change is abrupt
+
 ## Current scope
 Current validation is based on replayable CSV scenarios and automated unit tests. Later phases will include live telemetry from an RC aircraft testbed.

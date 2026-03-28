@@ -70,6 +70,7 @@ Current replay scenarios include:
 - `frozen_imu.csv`
 - `gps_fix_loss.csv`
 - `combined_fault.csv`
+- `gps_imu_inconsistency.csv`
 
 ## Tech stack
 - Python
