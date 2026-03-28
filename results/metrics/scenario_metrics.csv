@@ -1,0 +1,11 @@
+scenario,rows_processed,alerts_generated,warning_alerts,critical_alerts,observed_reason_codes,notes
+normal_flight.csv,4,0,0,0,NONE,Baseline nominal scenario
+packet_loss.csv,4,1,1,0,PACKET_LOSS,Validates packet continuity logic
+sensor_dropout.csv,4,1,1,0,IMU_DROPOUT,Validates zero-value IMU dropout detection
+gps_jump.csv,4,1,0,1,GPS_JUMP,Validates abrupt navigation anomaly detection
+low_battery.csv,4,1,1,0,LOW_BATTERY,Validates battery threshold alerting
+out_of_order_packets.csv,4,3,3,0,"PACKET_LOSS;OUT_OF_ORDER_PACKET",Sequence break also triggers packet mismatch logic
+duplicate_packet.csv,4,3,3,0,"PACKET_LOSS;DUPLICATE_PACKET;IMU_FROZEN",Repeated packet also repeats IMU values
+frozen_imu.csv,4,2,2,0,IMU_FROZEN,Validates repeated IMU reading detection
+gps_fix_loss.csv,4,2,2,0,GPS_FIX_LOSS,Validates degraded GPS reliability handling
+combined_fault.csv,4,12,10,2,"LOW_BATTERY;PACKET_LOSS;IMU_DROPOUT;GPS_FIX_LOSS;GPS_JUMP;DUPLICATE_PACKET;IMU_FROZEN",Compound anomaly stress scenario
