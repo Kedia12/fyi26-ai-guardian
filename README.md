@@ -86,6 +86,7 @@ The repository includes sample replay outputs in:
 It also includes validation artifacts in:
 - `results/metrics/validation_summary.md`
 - `results/metrics/scenario_metrics.csv`
+- `results/metrics/expected_vs_observed.csv`
 
 The scenario metrics file can be regenerated automatically with:
 
