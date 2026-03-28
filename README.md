@@ -70,7 +70,6 @@ Current replay scenarios include:
 - `frozen_imu.csv`
 - `gps_fix_loss.csv`
 - `combined_fault.csv`
-- `gps_imu_inconsistency.csv`
 
 ## Tech stack
 - Python
@@ -80,25 +79,10 @@ Current replay scenarios include:
 - CSV-based scenario replay
 - planned RC aircraft telemetry integration
 
-## Sample results
-The repository includes sample replay outputs in:
-- `results/sample_alert_logs/`
 
-It also includes validation artifacts in:
-- `results/metrics/validation_summary.md`
-- `results/metrics/scenario_metrics.csv`
-- `results/metrics/expected_vs_observed.csv`
-
-The scenario metrics file can be regenerated automatically with:
-
-```bash
-python3 -m guardian.metrics
 
 ## How to run
 Run the default scenario:
 
 ```bash
 python -m guardian.main
-
-Additional scenario-level metrics are available in:
-- `results/metrics/scenario_metrics.csv`
