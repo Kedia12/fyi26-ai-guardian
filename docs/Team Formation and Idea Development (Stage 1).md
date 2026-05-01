@@ -1,6 +1,6 @@
 # Human-in-the-Loop AI Guardian for Connected Aerospace Systems stage 1 Report
 
-## Introduction
+## 1. Introduction
 
 This report presents the first stage of our end-of-year project: team formation, idea exploration, project selection, and initial refinement of the **MVP (Minimum Viable Product)**. The purpose of this stage was to build a clear team structure, explore different project directions, evaluate them, and select one realistic and meaningful concept to develop further.
 
@@ -14,7 +14,7 @@ The system combines:
 - a **database and dashboard layer**
 - a **human-in-the-loop alert workflow**
 
-## Team Formation
+## 2. Team Formation
 
 At this stage, the team is composed of two members. Since the team is small, each person covers a large part of the project, and responsibilities were assigned according to current strengths and project needs.
 
@@ -36,7 +36,7 @@ Davi Roset
 • Data storage structure
 • Backend/frontend integration support
 
-## Role Definition Rationale
+# Role Definition Rationale
 
 These roles were assigned based on the technical direction of the project and each member’s strongest area of contribution.
 
@@ -44,21 +44,30 @@ Kedia has already been developing the RC aircraft and is leading the technical a
 
 Davi Roset is responsible for the dashboard and database side, which is essential for organizing, storing, and visualizing telemetry and alert data in a clear way.
 
-## Collaboration Tools and Team Norms
+# Collaboration Tools and Team Norms
 
 The team uses the following tools:
+
 • Discord for communication and quick updates
 • GitHub for version control and code collaboration
 • Shared written notes/documents for technical decisions and project organization
 
 The team also established the following norms:
+
 • communicate regularly on progress and blockers
 • document important decisions
 • keep responsibilities clear
 • keep the MVP realistic and focused
 • review architecture and priorities together when needed
 
-## Brainstormed Ideas
+## 3. Research and Brainstorming
+
+Before selecting the final project idea, we explored several possible directions related to digital monitoring, telemetry, data integrity, and aerospace-inspired systems.
+
+The goal of brainstorming was not only to generate ideas, but also to compare them based on feasibility, innovation, and relevance to our skills.
+
+
+# Brainstormed Ideas
 
 # Idea 1 — Aerospace Maintenance Dashboard
 
@@ -70,18 +79,23 @@ A web dashboard to display aircraft maintenance data, operational status, and al
  anomaly-detection or decision-support problem.
 
 # Idea 2 — Fleet Tracking / Monitoring Platform
+
 A platform to track the state and location of aircraft or RC vehicles through a web interface.
 
 # Reason for rejection:
+
  This was feasible, but it did not go far enough in terms of data validation, anomaly detection, or human-centered safety support.
 
 # Idea 3 — Battery and Communication Failure Monitor
+
 A monitoring system focused only on battery health and communication-link failures.
 
 # Reason for rejection:
+
 This idea was realistic, but too limited in scope. It could be included as one part of a bigger system, but on its own it did not provide enough impact for a final project.
 
 # Idea 4 — Human-in-the-Loop AI Guardian for Connected Aerospace Systems
+
 A telemetry-monitoring and anomaly-detection system that checks aircraft-related data, detects suspicious inconsistencies, and provides structured alerts with recommended safe actions while keeping the human operator involved.
 
 # Reason for selection:
@@ -154,6 +168,7 @@ The project therefore addresses the need for a system that can:
 • recommend safer actions
 
 ## 7. Proposed Solution
+
 The proposed MVP combines:
 • an RC aircraft telemetry testbed
 • a Python-based Guardian module
@@ -183,6 +198,7 @@ When something suspicious is detected, the system produces alerts that include:
 These outputs are intended to be displayed in a dashboard so that the operator can understand the issue and react appropriately.
 
 ## 8. Target Users
+
 The project is mainly intended for:
 • operators monitoring telemetry
 • engineers or testers working with connected aerospace systems
@@ -191,6 +207,7 @@ The project is mainly intended for:
 Although the prototype is based on an RC aircraft, the concept is meant to reflect a broader connected aerospace monitoring problem.
 
 ## 9. Type of Application
+
 This MVP is mainly a web-based monitoring application, supported by:
 • an embedded telemetry source (RC aircraft + sensors)
 • a Python anomaly-detection module
@@ -202,6 +219,7 @@ So the project combines both:
 • software / monitoring and decision support
 
 ## 10. Reasons for Selection
+
 We selected this idea because:
 
 1. It builds directly on an existing RC aircraft project already in progress.
@@ -213,6 +231,7 @@ We selected this idea because:
 ## 11. Key Features and Objectives
 
 # Main Features
+
 1. Telemetry monitoring pipeline
  Receive telemetry from the aircraft or replayed test scenarios.
 2. Anomaly detection module
@@ -251,24 +270,22 @@ Keeping these limits is important to maintain a realistic MVP.
 
 The following diagram shows the basic MVP journey from telemetry generation to operator action.
 
+```md
 ```mermaid
 flowchart TD
-    A[RC Aircraft / Replay Scenario] --> B[Telemetry Sent]
-    B --> C[Guardian Receives Data]
-    C --> D[Rule-Based Checks]
-    C --> E[Isolation Forest Anomaly Score]
-    D --> F[Alert Decision]
+    A[Aircraft or Replay] --> B[Telemetry]
+    B --> C[Guardian]
+    C --> D[Rules]
+    C --> E[ML Score]
+    D --> F[Alert]
     E --> F
-    F --> G[Generate Alert]
-    G --> H[Store in Database]
-    H --> I[Display on Dashboard]
-    I --> J[Operator Reviews Alert]
-    J --> K[Acknowledge]
-    J --> L[Override]
-    J --> M[Escalate]
-    K --> N[Log Operator Action]
-    L --> N
-    M --> N
+    F --> G[Database]
+    G --> H[Dashboard]
+    H --> I[Operator]
+    I --> J[Acknowledge]
+    I --> K[Override]
+    I --> L[Escalate]
+```
 
 ## Risks and Mitigation
 
