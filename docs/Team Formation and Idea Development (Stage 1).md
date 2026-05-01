@@ -69,36 +69,28 @@ The goal of brainstorming was not only to generate ideas, but also to compare th
 
 # Brainstormed Ideas
 
-# Idea 1 — Aerospace Maintenance Dashboard
+• Idea 1 — Aerospace Maintenance Dashboard
+ A web dashboard to display aircraft maintenance data, operational status, and alerts.
 
-A web dashboard to display aircraft maintenance data, operational status, and alerts.
+• Reason for rejection:
+ This idea was useful but too generic. It focused more on displaying information than on solving a deeper anomaly-detection or decision-support problem.
 
-# Reason for rejection:
- 
- This idea was useful but too generic. It focused more on displaying information than on solving a deeper 
- anomaly-detection or decision-support problem.
+• Idea 2 — Fleet Tracking / Monitoring Platform
+ A platform to track the state and location of aircraft or RC vehicles through a web interface.
 
-# Idea 2 — Fleet Tracking / Monitoring Platform
-
-A platform to track the state and location of aircraft or RC vehicles through a web interface.
-
-# Reason for rejection:
-
+• Reason for rejection:
  This was feasible, but it did not go far enough in terms of data validation, anomaly detection, or human-centered safety support.
 
-# Idea 3 — Battery and Communication Failure Monitor
-
+• Idea 3 — Battery and Communication Failure Monitor
 A monitoring system focused only on battery health and communication-link failures.
 
-# Reason for rejection:
-
+• Reason for rejection:
 This idea was realistic, but too limited in scope. It could be included as one part of a bigger system, but on its own it did not provide enough impact for a final project.
 
-# Idea 4 — Human-in-the-Loop AI Guardian for Connected Aerospace Systems
-
+• Idea 4 — Human-in-the-Loop AI Guardian for Connected Aerospace Systems
 A telemetry-monitoring and anomaly-detection system that checks aircraft-related data, detects suspicious inconsistencies, and provides structured alerts with recommended safe actions while keeping the human operator involved.
 
-# Reason for selection:
+• Reason for selection:
  This idea best matched our goals, our skills, and the work already started on the RC aircraft. It also offered a stronger balance between technical depth, relevance, and feasibility.
 
 ---
@@ -270,22 +262,34 @@ Keeping these limits is important to maintain a realistic MVP.
 
 The following diagram shows the basic MVP journey from telemetry generation to operator action.
 
-```md
 ```mermaid
 flowchart TD
-    A[Aircraft or Replay] --> B[Telemetry]
-    B --> C[Guardian]
-    C --> D[Rules]
-    C --> E[ML Score]
-    D --> F[Alert]
+    A[RC Aircraft / Replay Scenario] --> B[Telemetry Sent]
+    B --> C[Guardian Receives Data]
+    C --> D[Rule-Based Checks]
+    C --> E[Isolation Forest Anomaly Score]
+    D --> F[Alert Decision]
     E --> F
-    F --> G[Database]
-    G --> H[Dashboard]
-    H --> I[Operator]
-    I --> J[Acknowledge]
-    I --> K[Override]
-    I --> L[Escalate]
+    F --> G[Generate Alert]
+    G --> H[Store in Database]
+    H --> I[Display on Dashboard]
+    I --> J[Operator Reviews Alert]
+    J --> K[Acknowledge]
+    J --> L[Override]
+    J --> M[Escalate]
+    K --> N[Log Operator Action]
+    L --> N
+    M --> N
 ```
+
+### Simple explanation
+1. Telemetry comes from the aircraft or replayed scenario files.
+2. The Guardian receives and analyzes the data.
+3. Rule-based checks and the anomaly score are applied.
+4. If suspicious behavior is detected, an alert is generated.
+5. The alert is stored and displayed on the dashboard.
+6. The operator reviews the alert and can acknowledge, override, or escalate it.
+7. The operator action is logged for traceability.
 
 ## Risks and Mitigation
 
