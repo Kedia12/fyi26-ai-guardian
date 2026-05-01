@@ -68,27 +68,30 @@ The goal of brainstorming was not only to generate ideas, but also to compare th
 
 
 # Brainstormed Ideas
+ 🎯 Idea 1 — Aerospace Maintenance Dashboard:
 
-- Idea 1 — Aerospace Maintenance Dashboard:
- A web dashboard to display aircraft maintenance data, operational status, and alerts.
+ - A web dashboard to display aircraft maintenance data, operational status, and alerts.
 
 - Reason for rejection:
  This idea was useful but too generic. It focused more on displaying information than on solving a deeper anomaly-detection or decision-support problem.
 
-- Idea 2 — Fleet Tracking / Monitoring Platform:
- A platform to track the state and location of aircraft or RC vehicles through a web interface.
+🎯 Idea 2 — Fleet Tracking / Monitoring Platform:
+
+ - A platform to track the state and location of aircraft or RC vehicles through a web interface.
 
 - Reason for rejection:
  This was feasible, but it did not go far enough in terms of data validation, anomaly detection, or human-centered safety support.
 
-- Idea 3 — Battery and Communication Failure Monitor:
-A monitoring system focused only on battery health and communication-link failures.
+🎯 Idea 3 — Battery and Communication Failure Monitor:
+
+- A monitoring system focused only on battery health and communication-link failures.
 
 - Reason for rejection:
 This idea was realistic, but too limited in scope. It could be included as one part of a bigger system, but on its own it did not provide enough impact for a final project.
 
-- Idea 4 — Human-in-the-Loop AI Guardian for Connected Aerospace Systems:
-A telemetry-monitoring and anomaly-detection system that checks aircraft-related data, detects suspicious inconsistencies, and provides structured alerts with recommended safe actions while keeping the human operator involved.
+🎯 Idea 4 — Human-in-the-Loop AI Guardian for Connected Aerospace Systems:
+
+- A telemetry-monitoring and anomaly-detection system that checks aircraft-related data, detects suspicious inconsistencies, and provides structured alerts with recommended safe actions while keeping the human operator involved.
 
 - Reason for selection:
  This idea best matched our goals, our skills, and the work already started on the RC aircraft. It also offered a stronger balance between technical depth, relevance, and feasibility.
