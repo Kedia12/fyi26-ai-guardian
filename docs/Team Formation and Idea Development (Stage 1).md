@@ -1,10 +1,10 @@
-# Human-in-the-Loop AI Guardian for Connected Aerospace Systems
+# Human-in-the-Loop AI Guardian for Connected Aerospace Systems stage 1 Report
 
-## Overview
+## Introduction
 
-This project is an ongoing end-of-year school project focused on building a **Human-in-the-Loop AI Guardian** for connected aerospace systems.
+This report presents the first stage of our end-of-year project: team formation, idea exploration, project selection, and initial refinement of the **MVP (Minimum Viable Product)**. The purpose of this stage was to build a clear team structure, explore different project directions, evaluate them, and select one realistic and meaningful concept to develop further.
 
-The goal is to monitor telemetry from an RC aircraft testbed, detect suspicious anomalies or inconsistencies, and generate structured alerts that support safer human decision-making.
+Our final choice is a project called **Human-in-the-Loop AI Guardian for Connected Aerospace Systems**. The goal of this project is to monitor telemetry data from an RC aircraft testbed, detect suspicious anomalies or inconsistencies, and support safer decision-making through structured alerts and human supervision.
 
 The system combines:
 - an **RC aircraft telemetry source**
@@ -14,46 +14,109 @@ The system combines:
 - a **database and dashboard layer**
 - a **human-in-the-loop alert workflow**
 
+## Team Formation
+
+At this stage, the team is composed of two members. Since the team is small, each person covers a large part of the project, and responsibilities were assigned according to current strengths and project needs.
+
+Team Members and Roles
+
+Kedia Ihogoza
+• Project lead
+• Aircraft/testbed development
+• Telemetry design
+• Embedded systems work
+• Rule-based anomaly detection
+• Machine learning integration
+• Overall system coordination
+
+Davi Roset
+
+• Database development
+• Dashboard development
+• Data storage structure
+• Backend/frontend integration support
+
+## Role Definition Rationale
+
+These roles were assigned based on the technical direction of the project and each member’s strongest area of contribution.
+
+Kedia has already been developing the RC aircraft and is leading the technical architecture of the project. For that reason, it is logical for Kedia to manage the aircraft side, telemetry structure, anomaly detection, and AI-related work.
+
+Davi Roset is responsible for the dashboard and database side, which is essential for organizing, storing, and visualizing telemetry and alert data in a clear way.
+
+## Collaboration Tools and Team Norms
+
+The team uses the following tools:
+• Discord for communication and quick updates
+• GitHub for version control and code collaboration
+• Shared written notes/documents for technical decisions and project organization
+
+The team also established the following norms:
+• communicate regularly on progress and blockers
+• document important decisions
+• keep responsibilities clear
+• keep the MVP realistic and focused
+• review architecture and priorities together when needed
+
+## Brainstormed Ideas
+
+# Idea 1 — Aerospace Maintenance Dashboard
+
+A web dashboard to display aircraft maintenance data, operational status, and alerts.
+
+# Reason for rejection:
+ 
+ This idea was useful but too generic. It focused more on displaying information than on solving a deeper 
+ anomaly-detection or decision-support problem.
+
+# Idea 2 — Fleet Tracking / Monitoring Platform
+A platform to track the state and location of aircraft or RC vehicles through a web interface.
+
+# Reason for rejection:
+ This was feasible, but it did not go far enough in terms of data validation, anomaly detection, or human-centered safety support.
+
+# Idea 3 — Battery and Communication Failure Monitor
+A monitoring system focused only on battery health and communication-link failures.
+
+# Reason for rejection:
+This idea was realistic, but too limited in scope. It could be included as one part of a bigger system, but on its own it did not provide enough impact for a final project.
+
+# Idea 4 — Human-in-the-Loop AI Guardian for Connected Aerospace Systems
+A telemetry-monitoring and anomaly-detection system that checks aircraft-related data, detects suspicious inconsistencies, and provides structured alerts with recommended safe actions while keeping the human operator involved.
+
+# Reason for selection:
+ This idea best matched our goals, our skills, and the work already started on the RC aircraft. It also offered a stronger balance between technical depth, relevance, and feasibility.
+
 ---
 
-## Problem Statement
+## 4. Idea Evaluation
 
-Connected aerospace systems increasingly depend on continuous data exchange between onboard sensors, communication links, and ground-side monitoring tools. While this improves visibility and performance, it also creates risks when data becomes delayed, inconsistent, corrupted, or misleading.
+To compare the brainstormed ideas, we used the following criteria:
 
-Examples of issues include:
-- packet loss
-- delayed or out-of-order telemetry
-- sensor dropout
-- GPS jumps or spoofing-like behavior
-- GPS / IMU inconsistency
-- low battery instability
+• Feasibility: can the project be built as an MVP with our current time and resources?
+• Innovation: does it go beyond a simple interface or basic monitoring?
+• Impact: does it solve a meaningful and realistic problem?
+• Technical alignment: does it match the team’s current skills and learning goals?
+• Scalability: can the project be expanded later if needed?
 
-If such issues are not detected early, operators may make poor decisions.  
-This project aims to address that problem by building a system that can:
-- monitor telemetry
-- validate data consistency
-- detect anomalies
-- generate understandable alerts
-- recommend safe actions
-- keep a human involved in critical decisions
+# Ranking of Ideas
+
+1. Human-in-the-Loop AI Guardian for Connected Aerospace Systems
+2. Fleet Tracking / Monitoring Platform
+3. Aerospace Maintenance Dashboard
+4. Battery and Communication Failure Monitor
+
+The selected idea ranked first because it was the most complete in terms of technical interest, existing progress, and future value.
 
 ---
 
-## Project Objectives
+## 5. Selected MVP Concept
 
-The main objectives of this MVP are:
+# MVP Summary
 
-1. Build a working telemetry monitoring pipeline using replayed scenario data and later real aircraft data.
-2. Detect multiple anomaly scenarios such as packet loss, sensor dropout, GPS jumps, GPS/IMU inconsistency, and low battery.
-3. Generate structured alerts with:
-   - severity
-   - reason code
-   - confidence score
-   - recommended action
-4. Provide outputs that can be visualized in a dashboard.
-5. Keep the operator in the loop for final interpretation and action.
+The selected MVP is a monitoring and alerting system called **Guardian**. It is designed to receive telemetry from an RC aircraft testbed, analyze the data, detect suspicious anomalies, and provide structured alerts to help a human operator understand what is happening and what action should be considered.
 
----
+The Guardian focuses on **human-in-the-loop monitoring** rather than full automation. This means the system supports decision-making, but does not replace human responsibility in critical situations.
 
 ## MVP Feature Overview
 
@@ -70,6 +133,120 @@ The main objectives of this MVP are:
 
 ---
 
+## 6. Problem Statement
+
+Connected systems depend on continuous data exchange between sensors, onboard electronics, and ground-side tools. This creates efficiency and visibility, but also introduces risks. If telemetry becomes delayed, inconsistent, corrupted, or misleading, the system or operator may make incorrect decisions.
+
+In our case, examples of such problems include:
+
+• packet loss
+• delayed data
+• sensor dropout
+• suspicious GPS jumps
+• GPS/IMU inconsistency
+• low-battery instability
+
+The project therefore addresses the need for a system that can:
+
+• monitor data integrity
+• detect suspicious situations
+• explain alerts clearly
+• recommend safer actions
+
+## 7. Proposed Solution
+The proposed MVP combines:
+• an RC aircraft telemetry testbed
+• a Python-based Guardian module
+• a database layer
+• a web dashboard
+
+The Guardian receives telemetry fields such as:
+
+• timing and packet data
+• motion/IMU data
+• GPS/navigation data
+• altitude/environment data
+• battery and link status
+
+It then analyzes this information using:
+
+• rule-based checks for known conditions
+• a lightweight unsupervised anomaly score for unusual telemetry behavior
+
+When something suspicious is detected, the system produces alerts that include:
+
+• severity
+• reason code
+• confidence score
+• recommended action
+
+These outputs are intended to be displayed in a dashboard so that the operator can understand the issue and react appropriately.
+
+## 8. Target Users
+The project is mainly intended for:
+• operators monitoring telemetry
+• engineers or testers working with connected aerospace systems
+• students or researchers experimenting with embedded monitoring and anomaly detection
+
+Although the prototype is based on an RC aircraft, the concept is meant to reflect a broader connected aerospace monitoring problem.
+
+## 9. Type of Application
+This MVP is mainly a web-based monitoring application, supported by:
+• an embedded telemetry source (RC aircraft + sensors)
+• a Python anomaly-detection module
+• a database/storage layer
+
+So the project combines both:
+
+• hardware / embedded systems
+• software / monitoring and decision support
+
+## 10. Reasons for Selection
+We selected this idea because:
+
+1. It builds directly on an existing RC aircraft project already in progress.
+2. It matches our technical strengths in embedded systems, Python, databases, and interface development.
+3. It is realistic to prototype because software work can begin with replayed data before full aircraft testing.
+4. It solves a more meaningful problem than a simple dashboard by focusing on anomaly detection and data integrity.
+5. It has room for improvement and extension in later stages.
+
+## 11. Key Features and Objectives
+
+# Main Features
+1. Telemetry monitoring pipeline
+ Receive telemetry from the aircraft or replayed test scenarios.
+2. Anomaly detection module
+ Detect packet loss, sensor dropout, low battery, GPS jumps, and GPS/IMU inconsistency.
+3. Structured alerting
+ Generate alerts that include severity, confidence, reason code, and recommended action.
+
+## MVP Objectives
+
+• Build a working telemetry-monitoring pipeline using replayed and later real aircraft data.
+• Detect at least four defined anomaly scenarios in the Guardian module.
+• Provide outputs that can be visualized in a dashboard for demonstration and interpretation.
+
+## 12. Scope
+
+# In Scope
+• RC aircraft telemetry testbed
+• replayed scenario testing
+• rule-based anomaly detection
+• supporting unsupervised anomaly score
+• structured alert outputs
+• database support
+• basic dashboard integration
+
+# Out of Scope
+• full autonomous flight control
+• industrial-scale deployment
+• advanced certified avionics
+• large supervised ML classification system
+• complete cybersecurity infrastructure
+
+Keeping these limits is important to maintain a realistic MVP.
+
+
 ## User Journey MVP
 
 The following diagram shows the basic MVP journey from telemetry generation to operator action.
@@ -81,7 +258,7 @@ flowchart TD
     C --> D[Rule-Based Checks]
     C --> E[Isolation Forest Anomaly Score]
     D --> F[Alert Decision]
-    E --> F[Alert Decision]
+    E --> F
     F --> G[Generate Alert]
     G --> H[Store in Database]
     H --> I[Display on Dashboard]
@@ -90,174 +267,21 @@ flowchart TD
     J --> L[Override]
     J --> M[Escalate]
     K --> N[Log Operator Action]
-    L --> N[Log Operator Action]
-    M --> N[Log Operator Action]
+    L --> N
+    M --> N
 
+## Risks and Mitigation
 
-Simple explanation
+| Risk | Description | Mitigation |
+|---|---|---|
+| Limited ML experience | The ML part may be difficult to tune at first. | Start with rule-based detection and keep ML lightweight and supportive. |
+| Hardware delays | Aircraft or sensor integration may take more time than expected. | Continue development with replayed CSV scenarios in parallel. |
+| Small team size | A 2-person team has limited capacity. | Keep the MVP focused and clearly divide responsibilities. |
+| Scope expansion | The project may become too broad. | Limit the MVP to telemetry anomaly detection and alerting. |
+| False alerts | Detection thresholds may be too sensitive or not sensitive enough. | Test multiple scenarios and adjust thresholds progressively. |
 
-1. Telemetry comes from the aircraft or replayed scenario files.
-2. The Guardian receives and analyzes the data.
-3. Rule-based checks and the anomaly score are applied.
-4. If suspicious behavior is detected, an alert is generated.
-5. The alert is stored and displayed on the dashboard.
-6. The operator reviews the alert and can acknowledge, override, or escalate it.
-7. The operator action is logged for traceability.
+# Current Progress
 
-System Architecture
-
-High-Level Flow
-
-Aircraft / Replay Data → Guardian → Database → 
-
-Dashboard → Operator Action
-
-Main Components
-
-• RC aircraft / telemetry source
-• Telemetry replay scenarios
-• Guardian engine
-• Database
-• Dashboard
-• Human operator
-
-Telemetry Fields
-
-The Guardian works with telemetry fields such as:
-
-• timestamp_ms
-• packet_id
-• node_id
-• accel_x_g
-• accel_y_g
-• accel_z_g
-• gyro_x_dps
-• gyro_y_dps
-• gyro_z_dps
-• temperature_c
-• pressure_hpa
-• altitude_est_m
-• battery_voltage_v
-• low_power_flag
-• gps_lat_deg
-• gps_lon_deg
-• gps_alt_m
-• gps_speed_mps
-• gps_fix_status
-• satellite_count
-• link_status
-• mode_state
-
-These fields help the system analyze:
-
-• motion
-• rotation
-• altitude
-• battery health
-• GPS behavior
-• communication state
-• operating mode
-
-Current Detection Capabilities
-
-The current Guardian prototype can detect:
-
-• PACKET_LOSS
-• IMU_DROPOUT
-• LOW_BATTERY
-• GPS_JUMP
-• GPS_IMU_INCONSISTENCY
-
-It also computes a supporting ML anomaly score using Isolation Forest.
-
-Validation Scenarios
-
-The MVP currently relies on replayed CSV scenarios to validate its behavior.
-
-Scenarios
-• normal_flight.csv
-• packet_loss.csv
-• sensor_dropout.csv
-• low_battery.csv
-• gps_jump.csv
-
-Purpose
-
-These scenarios allow the Guardian to be tested before full aircraft flight readiness.
-
-Tech Stack
-Embedded / Hardware
-• Arduino / ESP32
-• IMU
-• GPS module
-• barometric sensor
-• battery sensing
-
-Software
-
-• Python
-• Pandas
-• NumPy
-• scikit-learn
-
-Database / Backend
-
-• MariaDB / MySQL
-• optional Redis
-
-Interface
-• Web dashboard
-• browser-based monitoring interface
-
-Tools
-• GitHub
-• Discord
-
-Team
-Kedia Ihogoza
-• Project lead
-• RC aircraft testbed
-• telemetry architecture
-• anomaly detection logic
-• machine learning integration
-• system design and coordination
-
-Davi Roset
-
-• Database development
-• dashboard development
-• data storage structure
-• integration support
-
-Scope
-In Scope
-
-• RC aircraft telemetry testbed
-• replayed telemetry scenario testing
-• rule-based anomaly detection
-• unsupervised anomaly scoring
-• structured alerts
-• database support
-• dashboard integration
-
-Out of Scope
-
-• full autonomous flight control
-• advanced certified avionics
-• production-scale deployment
-• large supervised ML classification pipeline
-• full industrial cybersecurity infrastructure
-
-Risks and Mitigation
-
-Risk	Description	Mitigation
-Limited ML experience	The ML part may be difficult to tune at first.	Start with rule-based detection and keep ML lightweight and supportive.
-Hardware delays	Aircraft or sensor integration may take more time than expected.	Continue development with replayed CSV scenarios in parallel.
-Small team size	A 2-person team has limited capacity.	Keep the MVP focused and clearly divide responsibilities.
-Scope expansion	The project may become too broad.	Limit the MVP to telemetry anomaly detection and alerting.
-False alerts	Detection thresholds may be too sensitive or not sensitive enough.	Test multiple scenarios and adjust thresholds progressively.
-
-Current Progress
 Completed
 
 • project structure set up on GitHub
