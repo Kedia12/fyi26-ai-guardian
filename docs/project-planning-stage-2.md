@@ -9,7 +9,7 @@ This document presents the high-level project plan for the development of the **
 Stage 1 focused on team formation, idea exploration, and MVP selection.  
 Stage 2 focuses on planning how the project will be carried out in a realistic, structured, and progressive way.
 
-## 2. SMART Goals
+## 🎯 2. SMART Goals
 
 | Goal | Specific | Measurable | Achievable | Relevant | Time-bound |
 |---|---|---|---|---|---|
@@ -19,7 +19,7 @@ Stage 2 focuses on planning how the project will be carried out in a realistic, 
 | Dashboard and database | Store and visualize telemetry and alerts. | Show alerts, history, and system state in a dashboard. | Database and dashboard work is assigned to the second team member. | Makes the system usable and traceable. | Before final integration and presentation. |
 | Final prototype | Deliver a working MVP demonstration. | Present a functioning Guardian with replayed or live telemetry. | The project is structured in progressive stages. | This is the final deliverable of the project. | By the Project Closure stage. |
 
-## 3. Stakeholders and Team Roles
+## 👥 3. Stakeholders and Team Roles
 
 ### 3.1 Project Overview
 The project, **Human-in-the-Loop AI Guardian for Connected Aerospace Systems**, aims to develop a prototype capable of monitoring telemetry from an RC aircraft testbed, detecting anomalies or inconsistencies in the data, and generating structured alerts to support safer human decision-making. The project combines embedded telemetry, anomaly detection, database storage, and dashboard visualization.
@@ -54,14 +54,14 @@ The project, **Human-in-the-Loop AI Guardian for Connected Aerospace Systems**, 
 | **QA / Tester** | **Shared** | Verifies expected system behavior, reviews outputs, and validates anomaly scenarios. |
 | **Documentation Lead** | **Kedia Ihogoza** | Organizes project documentation, writes reports, and documents decisions and progress. |
 
-## 4. Project Scope
+## 📌 4. Project Scope
 
 | Category | Description |
 |---|---|
 | **In-Scope** | - RC aircraft telemetry testbed <br> - Replayed telemetry scenarios <br> - Telemetry ingestion <br> - Rule-based anomaly detection <br> - Unsupervised anomaly scoring <br> - Alert generation with severity, reason code, confidence score, and recommended action <br> - Database storage <br> - Dashboard integration |
 | **Out-of-Scope** | - Full aircraft autonomy <br> - Certified avionics <br> - Advanced industrial cybersecurity systems <br> - Large supervised AI pipelines <br> - Full production deployment |
 
-## 5. Risks and Solutions
+## ⚠️ 5. Risks and Solutions
 
 **Purpose:**  
 To think ahead about possible problems during the project and define solutions that help reduce risk and keep the project realistic and achievable.
@@ -75,7 +75,7 @@ To think ahead about possible problems during the project and define solutions t
 | **Deployment** | Integration between Guardian, database, dashboard, and aircraft telemetry may be difficult. | Fix the telemetry and alert schemas early, test modules independently, and integrate step by step. |
 | **Scope** | The project may become too broad. | Keep the MVP limited to telemetry anomaly detection, structured alerts, and human-in-the-loop decision support. |
 
-## 6. High-Level Plan
+## 🗺️ 6. High-Level Plan
 
 | Step | What we do | What we get at the end |
 |---|---|---|
