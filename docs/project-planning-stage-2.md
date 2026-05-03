@@ -101,7 +101,7 @@ To think ahead about possible problems during the project and define solutions t
 | **After July 06 – July 18** | **Stage 5: Project Closure, Final Review and Presentation Preparation** | Final corrections, testing, documentation cleanup, presentation preparation, and final review | Project ready for school presentation |
 | **July 19** | **Final Deliverable: Landing Page** | Final showcase / presentation page | Landing page completed |
 
-## Timeline Chart 
+## Timeline Chart
 
 ```mermaid
 gantt
@@ -128,8 +128,8 @@ gantt
 
     section Final Deliverable
     Landing Page :milestone, s8, 2026-07-19, 1d
-    ```
-
+```
 
 ## 8. Closing Statement
+
 We have now established a clear project direction, a structured plan, and a realistic roadmap that will guide the team through the next stages of development.
