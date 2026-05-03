@@ -101,12 +101,35 @@ To think ahead about possible problems during the project and define solutions t
 | **After July 06 – July 18** | **Stage 5: Project Closure, Final Review and Presentation Preparation** | Final corrections, testing, documentation cleanup, presentation preparation, and final review | Project ready for school presentation |
 | **July 19** | **Final Deliverable: Landing Page** | Final showcase / presentation page | Landing page completed |
 
-### Planning Note
-The project is organized in progressive stages.  
-Stage 1 and Stage 2 establish the team, the idea, and the project structure.  
-Stage 3 focuses on documenting the system clearly before implementation.  
-A short buffer period is kept before Stage 4 to refine the work and prepare for execution.  
-Stage 4 focuses on building and validating the MVP, while Stage 5 is dedicated to final review, project closure, and presentation preparation.
+## Timeline Chart 
+
+```mermaid
+gantt
+    title High-Level Project Plan
+    dateFormat YYYY-MM-DD
+    axisFormat %b %d
+
+    section Current Work
+    Team Formation and MVP Selection :done, s1, 2026-05-01, 24d
+    Project Planning :active, s2, 2026-05-10, 15d
+
+    section Documentation
+    Technical Documentation :s3, 2026-05-25, 14d
+
+    section Preparation
+    Refinement and Buffer Period :s4, 2026-06-08, 25d
+
+    section Development
+    MVP Development and Execution :s5, 2026-07-03, 4d
+    Technical Manual Review :s6, 2026-07-03, 4d
+
+    section Closure
+    Final Review and Closure :s7, 2026-07-07, 12d
+
+    section Final Deliverable
+    Landing Page :milestone, s8, 2026-07-19, 1d
+    ```
+
 
 ## 8. Closing Statement
 We have now established a clear project direction, a structured plan, and a realistic roadmap that will guide the team through the next stages of development.
