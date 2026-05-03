@@ -1,140 +1,131 @@
-# Stage 2 Report
+Stage 2 Report – Project Planning
 
-## Project Planning
+Project Title
 
-## Project Title: Human-in-the-Loop AI Guardian for Connected Aerospace Systems
+Human-in-the-Loop AI Guardian for Connected Aerospace Systems
 
-## 1. Introduction
+1. Introduction
 
 This document presents the high-level project plan for the development of the Human-in-the-Loop AI Guardian for Connected Aerospace Systems. The purpose of this stage is to organize the project into clear phases, define the major milestones, and provide a structured view of how the work will progress from the initial idea to the final project presentation and closure.
 
 Stage 1 focused on team formation, idea exploration, and MVP selection.
 Stage 2 focuses on planning how the project will be carried out in a realistic, structured, and progressive way.
 
-## 🎯 SMART Goals
+2. SMART Goals
 
-| Goal | Specific | Measurable | Achievable | Relevant | Time-bound |
-|---|---|---|---|---|---|
-| Telemetry pipeline | Build a telemetry pipeline using replayed and later real aircraft data. | Replay at least 5 validation scenarios successfully. | Start with CSV replay before live telemetry. | Supports all Guardian functions. | During MVP Development stage. |
-| Anomaly detection | Implement rule-based anomaly detection for key risks. | Detect at least 4 anomaly types correctly. | Rules are already being developed and tested. | Core functionality of the Guardian. | During MVP Development stage. |
-| ML support | Add an unsupervised anomaly score using Isolation Forest. | Produce anomaly scores on normal and abnormal scenarios. | Lightweight ML is realistic for the team. | Adds AI-assisted monitoring to the project. | During MVP Development stage. |
-| Dashboard and database | Store and visualize telemetry and alerts. | Show alerts, history, and system state in a dashboard. | Database/dashboard work is assigned to the second team member. | Makes the system usable and traceable. | Before final integration and presentation. |
-| Final prototype | Deliver a working MVP demonstration. | Present a functioning Guardian with replay or live telemetry. | The project is structured in progressive stages. | This is the final deliverable of the project. | By Project Closure stage. |
+Goal	Specific	Measurable	Achievable	Relevant	Time-bound
+Telemetry pipeline	Build a telemetry pipeline using replayed data first and real aircraft data later.	Replay at least 5 validation scenarios successfully.	Start with CSV replay before live telemetry integration.	Supports all Guardian functions.	During the MVP Development stage.
+Anomaly detection	Implement rule-based anomaly detection for key risks.	Detect at least 4 anomaly types correctly.	Rules are already being developed and tested.	Core functionality of the Guardian.	During the MVP Development stage.
+ML support	Add an unsupervised anomaly score using Isolation Forest.	Produce anomaly scores on normal and abnormal scenarios.	Lightweight ML is realistic for the team.	Adds AI-assisted monitoring to the project.	During the MVP Development stage.
+Dashboard and database	Store and visualize telemetry and alerts.	Show alerts, history, and system state in a dashboard.	Database and dashboard work is assigned to the second team member.	Makes the system usable and traceable.	Before final integration and presentation.
+Final prototype	Deliver a working MVP demonstration.	Present a functioning Guardian with replayed or live telemetry.	The project is structured in progressive stages.	This is the final deliverable of the project.	By the Project Closure stage.
 
-## 👥 Stakeholders and Team Roles
+3. Stakeholders and Team Roles
+3.1 Project Overview
 
-### Project Overview
-The project, **Human-in-the-Loop AI Guardian for Connected Aerospace Systems**, aims to develop a prototype capable of monitoring telemetry from an RC aircraft testbed, detecting anomalies or inconsistencies in the data, and generating structured alerts to support safer human decision-making. The project combines embedded telemetry, anomaly detection, database storage, and dashboard visualization.
+The project, Human-in-the-Loop AI Guardian for Connected Aerospace Systems, aims to develop a prototype capable of monitoring telemetry from an RC aircraft testbed, detecting anomalies or inconsistencies in the data, and generating structured alerts to support safer human decision-making. The project combines embedded telemetry, anomaly detection, database storage, and dashboard visualization.
 
----
-
-## 1. Internal Stakeholders
+3.2 Internal Stakeholders
 
 Internal stakeholders are directly involved in the design, development, and execution of the project.
 
-| Stakeholder | Role | Description / Interest |
-|---|---|---|
-| **Kedia Ihogoza** | **Project Lead (Project Manager / Embedded Systems and AI Lead)** | Responsible for the overall coordination of the project and for ensuring coherence between all components. Leads the development of the RC aircraft testbed, defines the telemetry architecture, implements the anomaly detection logic, and integrates the machine learning component. Strongly interested in building a realistic and technically meaningful aerospace monitoring prototype. |
-| **Davi Roset** | **Database and Dashboard Developer** | Responsible for designing the data storage layer and the dashboard interface. Contributes to organizing telemetry and alert data in a structured way, and to creating a visual monitoring interface that makes the Guardian outputs understandable and usable. Interested in the software architecture and usability aspects of the project. |
+Stakeholder	Role	Description / Interest
+Kedia Ihogoza	Project Lead (Project Manager / Embedded Systems and AI Lead)	Responsible for the overall coordination of the project and for ensuring coherence between all components. Leads the development of the RC aircraft testbed, defines the telemetry architecture, implements the anomaly detection logic, and integrates the machine learning component. Strongly interested in building a realistic and technically meaningful aerospace monitoring prototype.
+Davi Roset	Database and Dashboard Developer	Responsible for designing the data storage layer and the dashboard interface. Contributes to organizing telemetry and alert data in a structured way, and to creating a visual monitoring interface that makes the Guardian outputs understandable and usable. Interested in the software architecture and usability aspects of the project.
 
----
-
-## 2. External Stakeholders
+3.3 External Stakeholders
 
 External stakeholders are not directly implementing the project, but they influence it through guidance, support, and feedback.
 
-| Stakeholder | Role | Description / Interest |
-|---|---|---|
-| **Sofian Messaoui** | **Project Support / External Guide** | Provides guidance and support throughout the project. His role is to accompany the team, offer feedback, and help ensure that the project remains well-structured and aligned with academic expectations. Interested in supporting the team’s progress and the quality of the final outcome. |
+Stakeholder	Role	Description / Interest
+Sofian Messaoui	Project Support / External Guide	Provides guidance and support throughout the project. His role is to accompany the team, offer feedback, and help ensure that the project remains well-structured and aligned with academic expectations. Interested in supporting the team’s progress and the quality of the final outcome.
 
----
+3.4 Stakeholder Interest and Impact
 
-## 3. 🤝 Stakeholder Interest and Impact
-
-| Stakeholder | Type | Main Interest | Impact on the Project |
-|---|---|---|---|
-| **Kedia Ihogoza** | Internal | Developing the core technical system and ensuring the MVP is coherent and functional. | High — directly responsible for major technical and organizational decisions. |
-| **Davi Roset** | Internal | Building the database and dashboard layers that make telemetry and alerts usable. | High — directly responsible for storage and visualization components. |
-| **Sofian Messaoui** | External | Supporting the team with guidance and helping improve project structure and quality. | Medium — influences direction and quality through feedback and support. |
-
----
-
-## Importance of Stakeholder Identification
+Stakeholder	Type	Main Interest	Impact on the Project
+Kedia Ihogoza	Internal	Developing the core technical system and ensuring the MVP is coherent and functional.	High — directly responsible for major technical and organizational decisions.
+Davi Roset	Internal	Building the database and dashboard layers that make telemetry and alerts usable.	High — directly responsible for storage and visualization components.
+Sofian Messaoui	External	Supporting the team with guidance and helping improve project structure and quality.	Medium — influences direction and quality through feedback and support.
+3.5 Importance of Stakeholder Identification
 
 Identifying stakeholders is important because it clarifies:
-- who is involved in the project
-- what each person is responsible for
-- what their interests are
-- how they influence the project’s success
+
+who is involved in the project
+what each person is responsible for
+what their interests are
+how they influence the project’s success
 
 This helps the team stay organized, assign responsibilities clearly, and maintain good communication throughout the project.
 
-## ▫️ Team Roles
+3.6 Team Roles
 
-| Role | Assigned To | Responsibilities |
-|---|---|---|
-| **Project Manager** | **Kedia Ihogoza** | Coordinates the project at a high level, defines priorities, tracks progress across stages, ensures that tasks remain aligned with the MVP goals, organizes team communication, and supports decision-making when technical or planning choices must be finalized. |
-| **Developer** | **Kedia & David** | Contribute to the implementation of the MVP. Kedia focuses on the aircraft testbed, telemetry structure, anomaly detection logic, and machine learning integration, while David focuses on the database, dashboard, and software-side data flow. |
-| **QA / Tester** | **Shared** | Verifies that the system behaves as expected, checks whether scenarios produce the correct alerts, reviews outputs for errors or inconsistencies, and helps validate that the MVP remains functional and coherent during development. |
-| **Documentation Lead** | **Kedia Ihogoza** | Prepares and organizes project documentation, writes reports and structured summaries, documents decisions and progress, and ensures that the project is clearly explained for academic review and final presentation. |
+Role	Assigned To	Responsibilities
+Project Manager	Kedia Ihogoza	Coordinates the project at a high level, defines priorities, tracks progress across stages, ensures that tasks remain aligned with the MVP goals, organizes team communication, and supports decision-making when technical or planning choices must be finalized.
+Developer	Kedia & Davi	Contribute to the implementation of the MVP. Kedia focuses on the aircraft testbed, telemetry structure, anomaly detection logic, and machine learning integration, while Davi focuses on the database, dashboard, and software-side data flow.
+QA / Tester	Shared	Verifies that the system behaves as expected, checks whether scenarios produce the correct alerts, reviews outputs for errors or inconsistencies, and helps validate that the MVP remains functional and coherent during development.
+Documentation Lead	Kedia Ihogoza	Prepares and organizes project documentation, writes reports and structured summaries, documents decisions and progress, and ensures that the project is clearly explained for academic review and final presentation.
 
+4. Project Scope
 
-## Project Scope
+Category	Description
+In-Scope	- RC aircraft telemetry testbed
+- Replayed telemetry scenarios
+- Telemetry ingestion
+- Rule-based anomaly detection
+- Unsupervised anomaly scoring
+- Alert generation with severity, reason code, confidence score, and recommended action
+- Database storage
+- Dashboard integration
+Out-of-Scope	- Full aircraft autonomy
+- Certified avionics
+- Advanced industrial cybersecurity systems
+- Large supervised AI pipelines
+- Full production deployment
 
-| Category | Description |
-|---|---|
-| **In-Scope** | - RC aircraft telemetry testbed  <br> - Replayed telemetry scenarios  <br> - Telemetry ingestion  <br> - Rule-based anomaly detection  <br> - Unsupervised anomaly scoring  <br> - Alert generation with severity, reason code, confidence score, and recommended action  <br> - Database storage  <br> - Dashboard integration |
-| **Out-of-Scope** | - Full aircraft autonomy  <br> - Certified avionics  <br> - Advanced industrial cybersecurity systems  <br> - Large supervised AI pipelines  <br> - Full production deployment |
+5. Risks and Solutions
 
-## ⚠️ Risks and Solutions
-
-**Purpose:**
+Purpose:
 
 To think ahead about possible problems during the project and define solutions that help reduce risk and keep the project realistic and achievable.
 
-| Risk Area | What could go wrong? | How to reduce the risk (solution) |
-|---|---|---|
-| **Technology** | The team may face technical difficulties with telemetry integration, anomaly detection logic, machine learning tuning, or communication between system components. | Start with simple rule-based logic, keep the ML component lightweight, test each component separately, and build the system progressively instead of all at once. |
-| **Timeline** | Some parts of the project, especially the aircraft or hardware integration, may take longer than expected and delay the overall progress. | Use replayed CSV scenarios in parallel so software development can continue even if the aircraft is not fully ready. Set short milestones and review progress regularly. |
-| **Team** | With only two team members, workload may become unbalanced, and delays in one area could affect the whole project. | Keep the MVP focused, define responsibilities clearly, communicate regularly, and avoid adding unnecessary features outside the main scope. |
-| **Testing** | Test scenarios may be too limited, and the system may not behave the same way with real data as it does with replayed scenarios. | Validate the system with multiple scenarios, compare normal and abnormal cases, and progressively move from replayed data to real telemetry when possible. |
-| **Deployment** | Integration between the Guardian, database, dashboard, and aircraft telemetry may be more difficult than expected. | Fix the telemetry schema and alert schema early, test modules independently first, and connect them step by step using stable interfaces. |
-| **Scope** | The project may become too broad by trying to cover too many features, systems, or advanced AI goals. | Keep the MVP limited to telemetry anomaly detection, structured alerts, and human-in-the-loop decision support. Leave advanced features for later stages. |
+Risk Area	What could go wrong?	How to reduce the risk (solution)
+Technology	The team may face technical difficulties with telemetry integration, anomaly detection logic, machine learning tuning, or communication between system components.	Start with simple rule-based logic, keep the ML component lightweight, test each component separately, and build the system progressively instead of all at once.
+Timeline	Some parts of the project, especially aircraft or hardware integration, may take longer than expected and delay overall progress.	Use replayed CSV scenarios in parallel so software development can continue even if the aircraft is not fully ready. Set short milestones and review progress regularly.
+Team	With only two team members, workload may become unbalanced, and delays in one area could affect the whole project.	Keep the MVP focused, define responsibilities clearly, communicate regularly, and avoid adding unnecessary features outside the main scope.
+Testing	Test scenarios may be too limited, and the system may not behave the same way with real data as it does with replayed scenarios.	Validate the system with multiple scenarios, compare normal and abnormal cases, and progressively move from replayed data to real telemetry when possible.
+Deployment	Integration between the Guardian, database, dashboard, and aircraft telemetry may be more difficult than expected.	Fix the telemetry schema and alert schema early, test modules independently first, and connect them step by step using stable interfaces.
+Scope	The project may become too broad by trying to cover too many features, systems, or advanced AI goals.	Keep the MVP limited to telemetry anomaly detection, structured alerts, and human-in-the-loop decision support. Leave advanced features for later stages.
 
-## Develop a High-Level Plan
+6. High-Level Plan
+Step	What we do	What we get at the end
+1. Setup & Tools	Set up GitHub, documentation, communication tools, folders, and the development environment.	A clean and organized project setup.
+2. Design	Define the architecture, user journey, telemetry flow, and MVP scope.	A clear plan of how the system should work.
+3. Frontend Pages	Build the dashboard pages for telemetry, alerts, and operator interaction.	A first visual interface for the project.
+4. Backend	Build the logic for storing telemetry, alerts, and connecting the system components.	A working backend foundation.
+5. Core Guardian Logic	Develop the anomaly detection engine, replay scenarios, and ML score integration.	A working detection engine for the MVP.
+6. Data Management / Admin Features	Organize alert history, scenario management, and traceability features.	A structured system for reviewing and organizing project data.
+7. Testing	Test the MVP with normal and anomaly scenarios.	Validation results and identified improvements.
+8. Deployment	Prepare the MVP for demonstration and stable execution.	A demo-ready prototype.
+9. Final Review	Review all components, finalize documentation, and prepare the final presentation.	Project ready for school presentation.
 
-| Step | What we do | What we get at the end |
-|---|---|---|
-| **1. Setup & Tools** | Set up GitHub, documentation, communication tools, folders, and the development environment. | A clean and organized project setup. |
-| **2. Design** | Define the architecture, user journey, telemetry flow, and MVP scope. | A clear plan of how the system should work. |
-| **3. Frontend Pages** | Build the dashboard pages for telemetry, alerts, and operator interaction. | A first visual interface for the project. |
-| **4. Backend** | Build the logic for storing telemetry, alerts, and connecting the system components. | A working backend foundation. |
-| **5. Payments** | Adapt this phase to the core Guardian logic: anomaly detection, replay scenarios, and ML score integration. | A working detection engine for the MVP. |
-| **6. Admin Panel** | Adapt this phase to data management: alert history, scenario management, and traceability. | A structured system for reviewing and organizing project data. |
-| **7. Testing** | Test the MVP with normal and anomaly scenarios. | Validation results and identified improvements. |
-| **8. Deployment** | Prepare the MVP for demonstration and stable execution. | A demo-ready prototype. |
-| **9. Final Review** | Review all components, finalize documentation, and prepare the final presentation. | **Project ready for school presentation.** |
+7. Weekly Timeline
 
-## Weekly Timeline
+Week / Period	Stage	Main Focus	Expected Output
+Current	Stage 1: Team Formation, Brainstorming and MVP	Team formation, idea exploration, comparison of possible project directions, and final MVP selection	Stage 1 Report
+Current	Stage 2: Project Planning	High-level planning, scope definition, risks, stakeholder identification, team roles, and timeline preparation	Stage 2 Report
+May 25 – June 07	Stage 3: Technical Documentation	System architecture, telemetry schema, alert schema, user journey, project structure, and technical documentation	Technical documentation completed
+June buffer period	Preparation / Refinement	Internal review, adjustments to documentation, task organization, and preparation for MVP execution	Team aligned and ready for development
+July 03 – July 06	Stage 4: MVP Development, Execution & Technical Manual Review	Guardian implementation, replay scenarios, anomaly detection tests, dashboard/database work, MVP execution, and manual review	Working MVP and reviewed technical manual
+After July 06 – July 18	Stage 5: Project Closure, Final Review and Presentation Preparation	Final corrections, testing, documentation cleanup, presentation preparation, and final review	Project ready for school presentation
+July 19	Final Deliverable: Landing Page	Final showcase / presentation page	Landing page completed
+Planning Note
 
-| Week / Period | Stage | Main Focus | Expected Output |
-|---|---|---|---|
-| Current | **Stage 1: Team Formation, Brainstorming and MVP** | Team formation, idea exploration, comparison of possible project directions, and final MVP selection | Stage 1 Report |
-| Current | **Stage 2: Project Planning** | High-level planning, scope definition, risks, stakeholder identification, team roles, and timeline preparation | Stage 2 Report |
-| **May 25 – June 07** | **Stage 3: Technical Documentation** | System architecture, telemetry schema, alert schema, user journey, project structure, and technical documentation | Technical documentation completed |
-| **June buffer period** | **Preparation / Refinement** | Internal review, adjustments to documentation, task organization, and preparation for MVP execution | Team aligned and ready for development |
-| **July 03 – July 06** | **Stage 4: MVP Development, Execution & Technical Manual Review** | Guardian implementation, replay scenarios, anomaly detection tests, dashboard/database work, MVP execution, and manual review | Working MVP and reviewed technical manual |
-| **After July 06 – July 18** | **Stage 5: Project Closure, Final Review and Presentation Preparation** | Final corrections, testing, documentation cleanup, presentation preparation, and final review | Project ready for school presentation |
-| **July 19** | **Final Deliverable: Landing Page** | Final showcase / presentation page | Landing page completed |
-
-### Planning Note
-
-The project is organized in progressive stages.  
-Stage 1 and Stage 2 establish the team, the idea, and the project structure.  
-Stage 3 focuses on documenting the system clearly before implementation.  
-A short buffer period is kept before Stage 4 to refine the work and prepare for execution.  
+The project is organized in progressive stages.
+Stage 1 and Stage 2 establish the team, the idea, and the project structure.
+Stage 3 focuses on documenting the system clearly before implementation.
+A short buffer period is kept before Stage 4 to refine the work and prepare for execution.
 Stage 4 focuses on building and validating the MVP, while Stage 5 is dedicated to final review, project closure, and presentation preparation.
 
-## Closing Statement
+8. Closing Statement
 
 We have now established a clear project direction, a structured plan, and a realistic roadmap that will guide the team through the next stages of development.
