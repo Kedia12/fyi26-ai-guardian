@@ -1,3 +1,18 @@
+## Table of Contents
+
+- [1. Introduction](#1-introduction)
+- [2. User Stories](#2-user-stories)
+- [3. Mockups](#3-mockups)
+- [4. System Architecture](#4-system-architecture)
+- [5. Components and Modules](#5-components-and-modules)
+- [6. Database Design](#6-database-design)
+- [7. Sequence Diagrams](#7-sequence-diagrams)
+- [8. API Specifications](#8-api-specifications)
+- [9. SCM Strategy](#9-scm-strategy)
+- [10. QA Strategy](#10-qa-strategy)
+- [11. Technical Justifications](#11-technical-justifications)
+- [12. Conclusion](#12-conclusion)
+
 # Stage 3 Report – Technical Documentation
 
 ## Project Title
