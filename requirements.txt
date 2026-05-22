@@ -1,3 +1,12 @@
+# Runtime dependencies (keep in sync with pyproject.toml [project.dependencies])
 pandas>=2.0
 scikit-learn>=1.3
+PyYAML>=6.0
+Flask>=3.0
+pyserial>=3.5
+pymavlink>=2.4
+
+# Development / testing
 pytest>=8.0
+
+# optional: paho-mqtt>=1.6

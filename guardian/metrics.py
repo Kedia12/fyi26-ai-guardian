@@ -3,6 +3,7 @@ import csv
 
 from guardian.engine import GuardianEngine
 from guardian.replay import replay_csv
+from guardian.precision_metrics import generate_precision_recall_csv
 
 
 def collect_metrics_for_scenario(path):
@@ -70,6 +71,7 @@ def generate_metrics_csv():
         writer.writerows(rows)
 
     print(f"Metrics written to: {output_csv}")
+    generate_precision_recall_csv()
 
 
 if __name__ == "__main__":

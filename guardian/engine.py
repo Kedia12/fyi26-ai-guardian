@@ -12,11 +12,15 @@ from guardian.rules import (
     check_gps_imu_inconsistency,
 )
 from guardian.ml_model import GuardianML
+from guardian.export import AlertExporter
+from guardian.config import get_config, get_ml_param
+from guardian.alerts import build_alert
 
 
 class GuardianEngine:
-    def __init__(self):
+    def __init__(self, db=None):
         self.prev_row = None
+        self.db = db
         self.ml = GuardianML()
         self.ml_ready = False
 
@@ -26,6 +30,15 @@ class GuardianEngine:
         if normal_csv.exists():
             self.ml.train_from_csv(normal_csv)
             self.ml_ready = True
+
+        # Instantiate the alert exporter based on config settings.
+        cfg = get_config()
+        logging_cfg = cfg.get("logging", {})
+        export_enabled = logging_cfg.get("json_export_enabled", False)
+        export_path = logging_cfg.get("json_export_path", "results/logs/alerts.jsonl")
+        if export_enabled and not Path(export_path).is_absolute():
+            export_path = project_root / export_path
+        self.exporter = AlertExporter(path=export_path, enabled=export_enabled)
 
     def process_row(self, row):
         alerts = []
@@ -45,7 +58,30 @@ class GuardianEngine:
             anomaly_score = self.ml.score_row(row)
             if anomaly_score is not None:
                 row["ml_anomaly_score"] = anomaly_score
+                if anomaly_score > get_ml_param("alert_threshold", 0.1):
+                    ml_alert = build_alert(
+                        row=row,
+                        severity=get_ml_param("alert_severity", "WARNING"),
+                        confidence=min(anomaly_score / (anomaly_score + 1.0), 0.99),
+                        reason_code="ML_ANOMALY",
+                        reason_text=f"ML anomaly score {anomaly_score:.4f} exceeded threshold.",
+                        recommended_action="VERIFY_OPERATOR",
+                    )
+                    alerts.append(ml_alert)
 
         self.prev_row = row
+
+        if self.db is not None:
+            self.db.insert_telemetry(row)
+            for alert in alerts:
+                self.db.insert_alert(
+                    alert,
+                    ml_source=(alert.get("reason_code") == "ML_ANOMALY"),
+                )
+
+        # Export all alerts to the .jsonl log file
+        if alerts:
+            self.exporter.write_batch(alerts, row)
+
         return alerts, anomaly_score
         

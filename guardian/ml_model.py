@@ -1,6 +1,7 @@
 import pandas as pd
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
+from guardian.config import get_ml_param
 
 
 FEATURES = [
@@ -20,9 +21,9 @@ class GuardianML:
     def __init__(self):
         self.scaler = StandardScaler()
         self.model = IsolationForest(
-            n_estimators=100,
-            contamination=0.05,
-            random_state=42
+            n_estimators=get_ml_param("n_estimators", 100),
+            contamination=get_ml_param("contamination", 0.05),
+            random_state=get_ml_param("random_state", 42)
         )
         self.is_trained = False
 

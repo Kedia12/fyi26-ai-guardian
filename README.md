@@ -86,3 +86,103 @@ Run the default scenario:
 
 ```bash
 python -m guardian.main
+```
+
+Run a specific scenario:
+
+```bash
+python -m guardian.main data/scenarios/combined_fault.csv
+```
+
+Start live UDP ingestion (listens on port 14550):
+
+```bash
+python -m guardian.main --live udp
+```
+
+## Installation
+
+Install as an editable package (recommended for development):
+
+```bash
+pip install -e .
+```
+
+This registers three console scripts:
+
+| Command             | Action                                      |
+|---------------------|---------------------------------------------|
+| `guardian`          | Replay a CSV scenario or start live mode    |
+| `guardian-dashboard`| Start the Flask web dashboard               |
+| `guardian-live`     | Start live UDP/serial ingestion directly    |
+
+Install all runtime + dev dependencies at once:
+
+```bash
+pip install -r requirements.txt
+```
+
+## Dashboard
+
+Enable the database in `config/guardian_config.yaml`:
+
+```yaml
+database:
+  enabled: true
+  path: results/guardian.db
+```
+
+Populate it by replaying a scenario, then start the dashboard:
+
+```bash
+python -m guardian.main data/scenarios/combined_fault.csv
+python -m dashboard.app          # open http://localhost:5000
+```
+
+## Docker
+
+Build and run the full stack with Docker Compose:
+
+```bash
+docker-compose up --build
+```
+
+Open `http://localhost:5000` for the dashboard.
+
+Or build and run the image manually:
+
+```bash
+docker build -t fyi26-guardian .
+docker run -p 5000:5000 \
+  -v $(pwd)/data:/app/data \
+  -v $(pwd)/results:/app/results \
+  -v $(pwd)/config:/app/config \
+  fyi26-guardian
+```
+
+Override the default command to run tests inside the container:
+
+```bash
+docker run fyi26-guardian python -m pytest -q
+```
+
+## CI
+
+The project uses GitHub Actions for continuous integration (`.github/workflows/ci.yml`).
+
+On every push and pull request to `main`:
+1. Install dependencies from `requirements.txt`
+2. Run the full test suite with `pytest -q`
+3. Generate scenario metrics (`guardian.metrics`)
+4. Run expected-vs-observed validation (`guardian.validation`)
+
+## Makefile shortcuts
+
+```bash
+make test          # run pytest
+make pipeline      # full pipeline: metrics → validation → tests → summary
+make dashboard     # start Flask dashboard
+make docker-build  # build Docker image
+make docker-run    # run container with data/results/config mounts
+make install       # pip install -e .
+```

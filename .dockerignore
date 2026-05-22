@@ -1,0 +1,14 @@
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.git
+.gitignore
+.github
+.pytest_cache
+*.egg-info
+dist/
+build/
+results/*.db
+results/logs/
+PHASE DETAILS/

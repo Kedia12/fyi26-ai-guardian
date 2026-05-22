@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}AI Guardian{% endblock %}</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: #0f1117;
+      color: #e2e8f0;
+      min-height: 100vh;
+    }
+
+    header {
+      background: #1a1d2e;
+      border-bottom: 1px solid #2d3748;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    header h1 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      color: #63b3ed;
+    }
+
+    header .badge {
+      background: #2b6cb0;
+      color: #bee3f8;
+      font-size: 0.7rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 9999px;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+
+    main { padding: 1.5rem; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      gap: 1.25rem;
+    }
+
+    .card {
+      background: #1a1d2e;
+      border: 1px solid #2d3748;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .card-header {
+      background: #232640;
+      padding: 0.6rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #90cdf4;
+      border-bottom: 1px solid #2d3748;
+    }
+
+    .card-body { padding: 0.9rem 1rem; overflow-x: auto; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.82rem;
+    }
+
+    th {
+      text-align: left;
+      color: #718096;
+      font-weight: 600;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      padding: 0.35rem 0.5rem;
+      border-bottom: 1px solid #2d3748;
+    }
+
+    td {
+      padding: 0.4rem 0.5rem;
+      border-bottom: 1px solid #1e2030;
+      vertical-align: middle;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    .sev-CRITICAL { color: #fc8181; font-weight: 700; }
+    .sev-WARNING  { color: #f6ad55; font-weight: 600; }
+    .sev-INFO     { color: #68d391; }
+
+    .status-active      { color: #fc8181; }
+    .status-acknowledged{ color: #f6ad55; }
+    .status-escalated   { color: #e53e3e; font-weight: 700; }
+    .status-resolved    { color: #68d391; }
+
+    .btn {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      border: 1px solid;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-decoration: none;
+      background: transparent;
+    }
+
+    .btn-ack          { border-color: #f6ad55; color: #f6ad55; }
+    .btn-esc          { border-color: #fc8181; color: #fc8181; }
+    .btn-res          { border-color: #68d391; color: #68d391; }
+    .btn-confirmed    { border-color: #68d391; color: #68d391; background: rgba(104,211,145,0.1); }
+    .btn-unconfirmed  { border-color: #718096; color: #718096; }
+
+    .btn:hover { opacity: 0.75; }
+
+    form { display: inline; }
+
+    .kv { display: grid; grid-template-columns: max-content 1fr; gap: 0.3rem 1rem; font-size: 0.82rem; }
+    .kv dt { color: #718096; white-space: nowrap; }
+    .kv dd { color: #e2e8f0; }
+
+    .empty { color: #4a5568; font-style: italic; font-size: 0.82rem; padding: 0.5rem 0; }
+
+    .full-width { grid-column: 1 / -1; }
+
+    .aircraft-icon {
+      font-size: 22px;
+      line-height: 1;
+      text-shadow: 0 0 4px #000;
+      filter: drop-shadow(0 0 3px #63b3ed);
+    }
+  </style>
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  <header>
+    <h1>&#9655; AI Guardian</h1>
+    <span class="badge">FYI26</span>
+  </header>
+  <main>
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

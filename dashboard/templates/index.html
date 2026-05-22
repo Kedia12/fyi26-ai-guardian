@@ -1,0 +1,401 @@
+{% extends "base.html" %}
+{% block title %}Guardian — Live Monitor{% endblock %}
+
+{% block head_extra %}
+<link rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""/>
+{% endblock %}
+
+{% block content %}
+<div class="grid">
+
+  <!-- ── Live Telemetry ─────────────────────────────────────── -->
+  <div class="card">
+    <div class="card-header">Live Telemetry</div>
+    <div class="card-body" id="telemetry-body">
+      {% if latest %}
+      <dl class="kv">
+        <dt>Packet ID</dt>   <dd>{{ latest.packet_id }}</dd>
+        <dt>Node</dt>        <dd>{{ latest.node_id }}</dd>
+        <dt>Timestamp</dt>   <dd>{{ latest.timestamp_ms }} ms</dd>
+        <dt>Battery</dt>     <dd>{{ "%.2f"|format(latest.battery_voltage_v|float) }} V</dd>
+        <dt>Altitude</dt>    <dd>{{ "%.1f"|format(latest.altitude_est_m|float) }} m</dd>
+        <dt>GPS</dt>         <dd>{{ "%.6f"|format(latest.gps_lat_deg|float) }}, {{ "%.6f"|format(latest.gps_lon_deg|float) }}</dd>
+        <dt>GPS Speed</dt>   <dd>{{ "%.1f"|format(latest.gps_speed_mps|float) }} m/s</dd>
+        <dt>Satellites</dt>  <dd>{{ latest.satellite_count }}</dd>
+        <dt>GPS Fix</dt>     <dd>{{ "Yes" if latest.gps_fix_status else "No" }}</dd>
+        <dt>Accel (x/y/z)</dt>
+          <dd>{{ "%.3f"|format(latest.accel_x_g|float) }} / {{ "%.3f"|format(latest.accel_y_g|float) }} / {{ "%.3f"|format(latest.accel_z_g|float) }} g</dd>
+        <dt>Gyro (x/y/z)</dt>
+          <dd>{{ "%.2f"|format(latest.gyro_x_dps|float) }} / {{ "%.2f"|format(latest.gyro_y_dps|float) }} / {{ "%.2f"|format(latest.gyro_z_dps|float) }} dps</dd>
+        <dt>ML Score</dt>    <dd>{{ "%.4f"|format(latest.ml_anomaly_score|float) if latest.ml_anomaly_score is not none else "N/A" }}</dd>
+      </dl>
+      {% else %}
+      <p class="empty">No telemetry received yet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ── Active Alerts (collapsible) ──────────────────────────── -->
+  <div class="card full-width">
+    <div class="card-header" id="alerts-header"
+         style="cursor:pointer; display:flex; justify-content:space-between; align-items:center; user-select:none;">
+      <span>Active Alerts (<span id="active-count">{{ active_alerts|length }}</span>)</span>
+      <span id="alerts-chevron" style="font-size:0.85rem; display:inline-block; transition:transform 0.2s;">&#9660;</span>
+    </div>
+    <div class="card-body" id="active-alerts-body" style="display:none;">
+      {% if active_alerts %}
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Sev</th><th>Code</th><th>Packet</th><th>Confirmation</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in active_alerts %}
+          <tr>
+            <td>{{ a.id }}</td>
+            <td class="sev-{{ a.severity }}">{{ a.severity }}</td>
+            <td>{{ a.reason_code }}</td>
+            <td>{{ a.packet_id }}</td>
+            <td>
+              <button class="btn {% if a.confirmed %}btn-confirmed{% else %}btn-unconfirmed{% endif %}"
+                      onclick="confirmAlert({{ a.id }})">
+                {{ "Confirmed" if a.confirmed else "Unconfirmed" }}
+              </button>
+            </td>
+            <td>
+              <button class="btn btn-ack" onclick="alertAction({{ a.id }}, 'acknowledge')">ACK</button>
+              <button class="btn btn-esc" onclick="alertAction({{ a.id }}, 'escalate')">ESC</button>
+              <button class="btn btn-res" onclick="alertAction({{ a.id }}, 'resolve')">RES</button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="empty">No active alerts.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ── Live Aircraft Map ──────────────────────────────────── -->
+  <div class="card full-width">
+    <div class="card-header">
+      Live Aircraft Map
+      <span id="map-status" style="float:right; font-size:0.7rem; color:#718096; font-weight:400; text-transform:none; letter-spacing:0;">Waiting for GPS data…</span>
+    </div>
+    <div style="padding: 0; height: 420px; border-radius: 0 0 8px 8px; overflow: hidden;">
+      <div id="aircraft-map" style="height: 420px; width: 100%;"></div>
+    </div>
+  </div>
+
+  <!-- ── Alert History ──────────────────────────────────────── -->
+  <div class="card full-width">
+    <div class="card-header">Alert History (<span id="history-count">{{ alert_history|length }}</span>)</div>
+    <div class="card-body" id="alert-history-body">
+      {% if alert_history %}
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Sev</th><th>Code</th><th>Reason</th><th>Packet</th><th>Confidence</th><th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for a in alert_history %}
+          <tr>
+            <td>{{ a.id }}</td>
+            <td class="sev-{{ a.severity }}">{{ a.severity }}</td>
+            <td>{{ a.reason_code }}</td>
+            <td>{{ a.reason_text }}</td>
+            <td>{{ a.packet_id }}</td>
+            <td>{{ "%.0f"|format(a.confidence|float * 100) }}%</td>
+            <td class="status-{{ a.alert_status }}">{{ a.alert_status }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <p class="empty">No resolved or acknowledged alerts yet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+<script>
+// ── Map setup ────────────────────────────────────────────────
+const map = L.map('aircraft-map', { zoomControl: true });
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+  maxZoom: 19,
+}).addTo(map);
+
+map.setView([20, 0], 2);
+
+const aircraftIcon = L.divIcon({
+  html: '&#9992;',
+  className: 'aircraft-icon',
+  iconSize: [24, 24],
+  iconAnchor: [12, 12],
+  popupAnchor: [0, -14],
+});
+
+const markers = {};
+const trails = {};
+const liveMarkers = {};
+let centeredOnAircraft = false;
+let monitoredCount = 0;
+let liveTrafficCount = 0;
+
+function updateMapStatus() {
+  const t = new Date().toLocaleTimeString();
+  const el = document.getElementById('map-status');
+  if (monitoredCount === 0 && liveTrafficCount === 0) {
+    el.textContent = 'Fetching live traffic…';
+  } else {
+    el.textContent = `Monitored: ${monitoredCount} · Live traffic: ${liveTrafficCount} · ${t}`;
+  }
+}
+
+function createLiveIcon(heading) {
+  const rot = heading !== null && heading !== undefined ? heading : 0;
+  return L.divIcon({
+    html: `<span style="display:inline-block;transform:rotate(${rot}deg);font-size:13px;color:#a0aec0;text-shadow:0 0 2px #000;line-height:1;">&#9992;</span>`,
+    className: '',
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
+    popupAnchor: [0, -10],
+  });
+}
+
+function buildLivePopup(ac) {
+  const alt = ac.altitude_m !== null ? parseFloat(ac.altitude_m).toFixed(0) + ' m' : 'N/A';
+  const spd = ac.velocity_mps !== null ? (parseFloat(ac.velocity_mps) * 1.944).toFixed(0) + ' kt' : 'N/A';
+  const hdg = ac.heading_deg !== null ? parseFloat(ac.heading_deg).toFixed(0) + '°' : 'N/A';
+  return `<div style="font-family:monospace;font-size:12px;min-width:160px;line-height:1.7;">
+    <b style="color:#a0aec0">${ac.callsign}</b> <span style="color:#4a5568;font-size:10px;">${ac.icao24}</span><br>
+    <span style="color:#718096">Country:</span> ${ac.origin_country}<br>
+    <span style="color:#718096">Alt:</span> ${alt}<br>
+    <span style="color:#718096">Speed:</span> ${spd}<br>
+    <span style="color:#718096">Heading:</span> ${hdg}
+  </div>`;
+}
+
+function buildPopup(pos) {
+  const fix = pos.gps_fix_status ? '<span style="color:#68d391">&#10003; Yes</span>'
+                                  : '<span style="color:#fc8181">&#10007; No</span>';
+  return `<div style="font-family:monospace;font-size:12px;min-width:170px;line-height:1.7;">
+    <b style="color:#63b3ed">${pos.node_id}</b><br>
+    <span style="color:#718096">Alt:</span> ${parseFloat(pos.altitude_est_m || 0).toFixed(1)} m<br>
+    <span style="color:#718096">Speed:</span> ${parseFloat(pos.gps_speed_mps || 0).toFixed(1)} m/s<br>
+    <span style="color:#718096">Battery:</span> ${parseFloat(pos.battery_voltage_v || 0).toFixed(2)} V<br>
+    <span style="color:#718096">GPS Fix:</span> ${fix}<br>
+    <span style="color:#718096">Satellites:</span> ${pos.satellite_count}
+  </div>`;
+}
+
+function updateMap() {
+  fetch('/api/aircraft-positions')
+    .then(r => r.json())
+    .then(positions => {
+      monitoredCount = 0;
+      if (!positions.length) { updateMapStatus(); return; }
+
+      positions.forEach(pos => {
+        const lat = parseFloat(pos.gps_lat_deg);
+        const lon = parseFloat(pos.gps_lon_deg);
+        if (isNaN(lat) || isNaN(lon)) return;
+
+        const id = pos.node_id;
+        const popup = buildPopup(pos);
+
+        if (markers[id]) {
+          markers[id].setLatLng([lat, lon]).setPopupContent(popup);
+        } else {
+          markers[id] = L.marker([lat, lon], { icon: aircraftIcon })
+            .addTo(map).bindPopup(popup);
+          if (!centeredOnAircraft) {
+            map.setView([lat, lon], 14);
+            centeredOnAircraft = true;
+          }
+        }
+
+        fetch(`/api/flight-trail?node_id=${encodeURIComponent(id)}&limit=100`)
+          .then(r => r.json())
+          .then(trail => {
+            const pts = trail
+              .filter(p => p.gps_lat_deg && p.gps_lon_deg)
+              .map(p => [parseFloat(p.gps_lat_deg), parseFloat(p.gps_lon_deg)]);
+            if (trails[id]) {
+              trails[id].setLatLngs(pts);
+            } else if (pts.length > 1) {
+              trails[id] = L.polyline(pts, {
+                color: '#63b3ed', weight: 2, opacity: 0.55, dashArray: '5 5'
+              }).addTo(map);
+            }
+          }).catch(() => {});
+      });
+
+      monitoredCount = positions.length;
+      updateMapStatus();
+    }).catch(() => {});
+}
+
+function updateLiveTraffic() {
+  fetch('/api/live-traffic')
+    .then(r => { if (!r.ok) throw new Error('unavailable'); return r.json(); })
+    .then(aircraft => {
+      if (!Array.isArray(aircraft)) return;
+      const seen = new Set();
+      aircraft.forEach(ac => {
+        const lat = parseFloat(ac.latitude);
+        const lon = parseFloat(ac.longitude);
+        if (isNaN(lat) || isNaN(lon)) return;
+        const id = ac.icao24;
+        seen.add(id);
+        const popup = buildLivePopup(ac);
+        const icon = createLiveIcon(ac.heading_deg);
+        if (liveMarkers[id]) {
+          liveMarkers[id].setLatLng([lat, lon]).setPopupContent(popup).setIcon(icon);
+        } else {
+          liveMarkers[id] = L.marker([lat, lon], { icon }).addTo(map).bindPopup(popup);
+        }
+      });
+      Object.keys(liveMarkers).forEach(id => {
+        if (!seen.has(id)) { map.removeLayer(liveMarkers[id]); delete liveMarkers[id]; }
+      });
+      liveTrafficCount = seen.size;
+      updateMapStatus();
+    }).catch(() => {});
+}
+
+// ── Telemetry polling ─────────────────────────────────────────
+function updateTelemetry() {
+  fetch('/api/telemetry')
+    .then(r => r.json())
+    .then(d => {
+      if (!d) { document.getElementById('telemetry-body').innerHTML = '<p class="empty">No telemetry received yet.</p>'; return; }
+      const score = (d.ml_anomaly_score !== null && d.ml_anomaly_score !== undefined)
+        ? parseFloat(d.ml_anomaly_score).toFixed(4) : 'N/A';
+      document.getElementById('telemetry-body').innerHTML = `
+        <dl class="kv">
+          <dt>Packet ID</dt>   <dd>${d.packet_id}</dd>
+          <dt>Node</dt>        <dd>${d.node_id}</dd>
+          <dt>Timestamp</dt>   <dd>${d.timestamp_ms} ms</dd>
+          <dt>Battery</dt>     <dd>${parseFloat(d.battery_voltage_v).toFixed(2)} V</dd>
+          <dt>Altitude</dt>    <dd>${parseFloat(d.altitude_est_m).toFixed(1)} m</dd>
+          <dt>GPS</dt>         <dd>${parseFloat(d.gps_lat_deg).toFixed(6)}, ${parseFloat(d.gps_lon_deg).toFixed(6)}</dd>
+          <dt>GPS Speed</dt>   <dd>${parseFloat(d.gps_speed_mps).toFixed(1)} m/s</dd>
+          <dt>Satellites</dt>  <dd>${d.satellite_count}</dd>
+          <dt>GPS Fix</dt>     <dd>${d.gps_fix_status ? 'Yes' : 'No'}</dd>
+          <dt>Accel (x/y/z)</dt>
+            <dd>${parseFloat(d.accel_x_g).toFixed(3)} / ${parseFloat(d.accel_y_g).toFixed(3)} / ${parseFloat(d.accel_z_g).toFixed(3)} g</dd>
+          <dt>Gyro (x/y/z)</dt>
+            <dd>${parseFloat(d.gyro_x_dps).toFixed(2)} / ${parseFloat(d.gyro_y_dps).toFixed(2)} / ${parseFloat(d.gyro_z_dps).toFixed(2)} dps</dd>
+          <dt>ML Score</dt>    <dd>${score}</dd>
+        </dl>`;
+    }).catch(() => {});
+}
+
+// ── Active Alerts toggle ──────────────────────────────────────
+let alertsExpanded = false;
+function toggleAlerts() {
+  alertsExpanded = !alertsExpanded;
+  document.getElementById('active-alerts-body').style.display = alertsExpanded ? '' : 'none';
+  document.getElementById('alerts-chevron').style.transform = alertsExpanded ? 'rotate(180deg)' : '';
+}
+
+// ── Alerts polling ────────────────────────────────────────────
+function confirmAlert(alertId) {
+  fetch(`/api/alerts/${alertId}/confirm`, { method: 'POST' })
+    .then(() => updateAlerts()).catch(() => {});
+}
+
+function alertAction(alertId, actionType) {
+  fetch(`/api/alerts/${alertId}/action`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action_type: actionType }),
+  }).then(() => updateAlerts()).catch(() => {});
+}
+
+function renderActiveAlerts(active) {
+  const body = document.getElementById('active-alerts-body');
+  document.getElementById('active-count').textContent = active.length;
+  if (!active.length) {
+    body.innerHTML = '<p class="empty">No active alerts.</p>';
+    body.style.display = alertsExpanded ? '' : 'none';
+    return;
+  }
+  const rows = active.map(a => `<tr>
+    <td>${a.id}</td>
+    <td class="sev-${a.severity}">${a.severity}</td>
+    <td>${a.reason_code}</td>
+    <td>${a.packet_id}</td>
+    <td>
+      <button class="btn ${a.confirmed ? 'btn-confirmed' : 'btn-unconfirmed'}"
+              onclick="confirmAlert(${a.id})">
+        ${a.confirmed ? 'Confirmed' : 'Unconfirmed'}
+      </button>
+    </td>
+    <td>
+      <button class="btn btn-ack" onclick="alertAction(${a.id},'acknowledge')">ACK</button>
+      <button class="btn btn-esc" onclick="alertAction(${a.id},'escalate')">ESC</button>
+      <button class="btn btn-res" onclick="alertAction(${a.id},'resolve')">RES</button>
+    </td></tr>`).join('');
+  body.innerHTML = `
+    <table><thead><tr>
+      <th>ID</th><th>Sev</th><th>Code</th><th>Packet</th><th>Confirmation</th><th>Actions</th>
+    </tr></thead><tbody>${rows}</tbody></table>`;
+  body.style.display = alertsExpanded ? '' : 'none';
+}
+
+function renderAlertHistory(history) {
+  document.getElementById('history-count').textContent = history.length;
+  if (!history.length) {
+    document.getElementById('alert-history-body').innerHTML = '<p class="empty">No resolved or acknowledged alerts yet.</p>';
+    return;
+  }
+  const rows = history.map(a => `<tr>
+    <td>${a.id}</td>
+    <td class="sev-${a.severity}">${a.severity}</td>
+    <td>${a.reason_code}</td>
+    <td>${a.reason_text}</td>
+    <td>${a.packet_id}</td>
+    <td>${Math.round(a.confidence * 100)}%</td>
+    <td class="status-${a.alert_status}">${a.alert_status}</td></tr>`).join('');
+  document.getElementById('alert-history-body').innerHTML = `
+    <table><thead><tr>
+      <th>ID</th><th>Sev</th><th>Code</th><th>Reason</th><th>Packet</th><th>Confidence</th><th>Status</th>
+    </tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+function updateAlerts() {
+  fetch('/api/alerts')
+    .then(r => r.json())
+    .then(alerts => {
+      renderActiveAlerts(alerts.filter(a => a.alert_status === 'active'));
+      renderAlertHistory(alerts.filter(a => a.alert_status !== 'active'));
+    }).catch(() => {});
+}
+
+// ── Boot & intervals ──────────────────────────────────────────
+document.getElementById('alerts-header').addEventListener('click', toggleAlerts);
+updateMap();
+updateTelemetry();
+updateAlerts();
+updateLiveTraffic();
+
+setInterval(updateMap,          3000);
+setInterval(updateTelemetry,    3000);
+setInterval(updateAlerts,       5000);
+setInterval(updateLiveTraffic, 15000);
+</script>
+{% endblock %}

@@ -1,0 +1,84 @@
+# Guardian configuration file
+# All tuneable thresholds, hyperparameters, and paths live here.
+# Edit this file to change behaviour without touching Python code.
+
+rules:
+  # Maximum allowed timestamp gap between consecutive packets (milliseconds).
+  # Gaps larger than this are reported as PACKET_LOSS.
+  packet_loss_gap_ms: 200
+
+  # Battery voltage threshold for a WARNING alert.
+  # Triggered when voltage drops below this value.
+  battery_warning_v: 10.5
+
+  # Battery voltage threshold for a CRITICAL alert.
+  # Must be lower than battery_warning_v.
+  battery_critical_v: 10.2
+
+  # Maximum allowed latitude or longitude change between consecutive packets
+  # (degrees). Changes larger than this are reported as GPS_JUMP.
+  gps_jump_threshold_deg: 0.001
+
+  # Maximum allowed GPS speed change between consecutive packets (m/s).
+  # Changes larger than this are also part of GPS_JUMP detection.
+  gps_speed_jump_mps: 15.0
+
+  # Minimum number of satellites required for a valid GPS fix.
+  # Fewer satellites triggers GPS_FIX_LOSS.
+  min_satellites: 4
+
+  # IMU acceleration magnitude below which the IMU is considered "not moving"
+  # during GPS-IMU inconsistency checks (g).
+  gps_imu_accel_mag_threshold: 0.2
+
+  # IMU gyroscope magnitude below which the IMU is considered "not rotating"
+  # during GPS-IMU inconsistency checks (degrees/sec).
+  gps_imu_gyro_mag_threshold: 3.0
+
+ml:
+  # Number of trees in the Isolation Forest.
+  n_estimators: 100
+
+  # Expected fraction of anomalous rows in training data (0.0 to 0.5).
+  contamination: 0.05
+
+  # Random seed for reproducibility.
+  random_state: 42
+
+  # Anomaly score threshold above which the ML model generates a ML_ANOMALY alert.
+  # Scores from score_row() are positive floats; higher means more anomalous.
+  alert_threshold: 0.1
+
+  # Severity level for ML-generated alerts. Options: WARNING, CRITICAL.
+  alert_severity: WARNING
+
+  # Confidence value for ML-generated alerts (0.0 to 1.0).
+  # The actual confidence is computed dynamically; this is a fallback default.
+  alert_confidence: 0.75
+
+logging:
+  # Set to true to write every alert to a .jsonl file as it is generated.
+  json_export_enabled: true
+
+  # Path (relative to project root) where the .jsonl alert log is written.
+  json_export_path: results/logs/alerts.jsonl
+
+database:
+  # Set to true to persist telemetry rows and alerts into SQLite.
+  enabled: true
+
+  # Path (relative to project root) for the SQLite database file.
+  path: results/guardian.db
+
+ingestion:
+  # Active ingestion mode. Options: replay, udp, serial, mavlink.
+  mode: udp
+
+  # UDP listener settings (used when mode: udp or mode: mavlink).
+  udp_host: 0.0.0.0
+  udp_port: 14550
+
+  # Serial port settings (used when mode: serial).
+  # Windows: COM3, COM4, etc.  Linux/macOS: /dev/ttyUSB0, /dev/ttyACM0, etc.
+  serial_port: COM3
+  serial_baud: 57600

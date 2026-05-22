@@ -1,4 +1,5 @@
 from guardian.alerts import build_alert
+from guardian.config import get_rule_threshold
 
 """
 Deterministic rule-based anomaly checks for the Guardian.
@@ -45,7 +46,7 @@ def check_packet_loss(prev_row, row):
     expected_packet = prev_packet + 1
     time_gap = current_time - prev_time
 
-    if current_packet != expected_packet or time_gap > 200:
+    if current_packet != expected_packet or time_gap > get_rule_threshold("packet_loss_gap_ms", 200):
         alerts.append(
             build_alert(
                 row=row,
@@ -190,11 +191,11 @@ def check_low_battery(row):
     if voltage is None or low_flag is None:
         return alerts
 
-    if low_flag == 1 or voltage < 10.5:
+    if low_flag == 1 or voltage < get_rule_threshold("battery_warning_v", 10.5):
         alerts.append(
             build_alert(
                 row=row,
-                severity="CRITICAL" if voltage < 10.2 else "WARNING",
+                severity="CRITICAL" if voltage < get_rule_threshold("battery_critical_v", 10.2) else "WARNING",
                 confidence=0.97,
                 reason_code="LOW_BATTERY",
                 reason_text="Battery voltage below safety threshold.",
@@ -214,7 +215,7 @@ def check_gps_fix_loss(row):
     if gps_fix is None or satellites is None:
         return alerts
 
-    if gps_fix == 0 or satellites < 4:
+    if gps_fix == 0 or satellites < get_rule_threshold("min_satellites", 4):
         alerts.append(
             build_alert(
                 row=row,
@@ -250,7 +251,9 @@ def check_gps_jump(prev_row, row):
     lon_jump = abs(curr_lon - prev_lon)
     speed_jump = abs(curr_speed - prev_speed)
 
-    if lat_jump > 0.001 or lon_jump > 0.001 or speed_jump > 15:
+    if (lat_jump > get_rule_threshold("gps_jump_threshold_deg", 0.001)
+            or lon_jump > get_rule_threshold("gps_jump_threshold_deg", 0.001)
+            or speed_jump > get_rule_threshold("gps_speed_jump_mps", 15.0)):
         alerts.append(
             build_alert(
                 row=row,
@@ -292,8 +295,8 @@ def check_gps_imu_inconsistency(prev_row, row):
     accel_mag = abs(accel_x) + abs(accel_y) + abs(accel_z - 1.0)
     gyro_mag = abs(gyro_x) + abs(gyro_y) + abs(gyro_z)
 
-    gps_big_change = lat_jump > 0.001 or lon_jump > 0.001
-    imu_low_motion = accel_mag < 0.2 and gyro_mag < 3.0
+    gps_big_change = lat_jump > get_rule_threshold("gps_jump_threshold_deg", 0.001) or lon_jump > get_rule_threshold("gps_jump_threshold_deg", 0.001)
+    imu_low_motion = accel_mag < get_rule_threshold("gps_imu_accel_mag_threshold", 0.2) and gyro_mag < get_rule_threshold("gps_imu_gyro_mag_threshold", 3.0)
 
     if gps_big_change and imu_low_motion:
         alerts.append(
