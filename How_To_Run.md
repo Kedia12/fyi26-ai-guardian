@@ -176,6 +176,164 @@ python -m guardian.main --live mavlink
 
 ---
 
+## Compatible Aircraft Apps
+
+Guardian speaks MAVLink, the industry-standard telemetry protocol used by ArduPilot, PX4, and all major ground control stations. The table below shows how to connect each app to Guardian's live ingestion mode.
+
+**First, set the ingestion mode to `mavlink` in [config/guardian_config.yaml](config/guardian_config.yaml):**
+```yaml
+ingestion:
+  mode: mavlink
+  mavlink_connection: udp:0.0.0.0:14550
+```
+
+Then start Guardian:
+```bash
+python -m guardian.ingest_runner
+```
+
+---
+
+### QGroundControl (QGC)
+
+**Platform:** Windows, macOS, Linux, Android, iOS
+**Download:** https://qgroundcontrol.com
+
+QGC streams MAVLink over UDP by default. Guardian listens on the same port.
+
+| Step | Action |
+|---|---|
+| 1 | Open QGC → **Application Settings → Comm Links → Add** |
+| 2 | Type: `UDP`, Port: `14550`, Target host: your Guardian machine IP |
+| 3 | Click **Connect** |
+| 4 | Guardian receives `HEARTBEAT`, `SCALED_IMU`, `GPS_RAW_INT`, `SYS_STATUS`, `VFR_HUD` and starts emitting assembled rows |
+
+**Connection string in config:**
+```yaml
+mavlink_connection: udp:0.0.0.0:14550
+```
+
+---
+
+### Mission Planner (ArduPilot)
+
+**Platform:** Windows only
+**Download:** https://ardupilot.org/planner
+
+Mission Planner connects to a flight controller and can forward MAVLink to Guardian via UDP output.
+
+| Step | Action |
+|---|---|
+| 1 | Connect Mission Planner to your flight controller (USB or telemetry radio) |
+| 2 | Go to **Config → Planner → Output** and add a UDP output to `127.0.0.1:14550` |
+| 3 | Guardian receives the forwarded MAVLink stream on port 14550 |
+
+**Connection string in config:**
+```yaml
+mavlink_connection: udp:0.0.0.0:14550
+```
+
+---
+
+### MAVProxy (command-line bridge)
+
+**Platform:** Windows, macOS, Linux
+**Install:** `pip install MAVProxy`
+
+MAVProxy is the standard bridge between a simulator (SITL) or hardware and multiple consumers. Use it to fan out one MAVLink source to both a GCS and Guardian simultaneously.
+
+```bash
+# Bridge SITL TCP output to Guardian UDP + QGC UDP
+mavproxy.py --master tcp:127.0.0.1:5760 \
+            --out udp:127.0.0.1:14550 \
+            --out udp:127.0.0.1:14551
+```
+
+Guardian then connects on `udp:0.0.0.0:14550` and QGC on port `14551`.
+
+**Connection string in config:**
+```yaml
+mavlink_connection: udp:0.0.0.0:14550
+```
+
+---
+
+### ArduPilot SITL (software simulator — no hardware needed)
+
+SITL lets you test Guardian against a fully simulated aircraft without any physical hardware.
+
+```bash
+# Terminal 1 — start ArduPlane SITL
+sim_vehicle.py -v ArduPlane --console --map
+
+# Terminal 2 — bridge SITL to Guardian's port
+mavproxy.py --master tcp:127.0.0.1:5760 --out udp:127.0.0.1:14550
+
+# Terminal 3 — start Guardian in MAVLink mode
+python -m guardian.ingest_runner
+
+# Terminal 4 — run MAVLink integration tests against the live simulator
+set MAVLINK_SIM=1
+pytest tests/test_mavlink_listener.py -v
+```
+
+---
+
+### PX4 Autopilot
+
+**Platform:** Pixhawk hardware or PX4 SITL
+**Docs:** https://docs.px4.io
+
+PX4 outputs standard MAVLink and is fully compatible. Use QGC or MAVProxy as a bridge, or connect directly via UDP if PX4 is configured for GCS broadcast.
+
+```bash
+# PX4 SITL (Gazebo) — start simulation
+make px4_sitl gazebo
+
+# PX4 broadcasts MAVLink on UDP 14550 by default — Guardian connects directly
+python -m guardian.ingest_runner
+```
+
+**Connection string in config:**
+```yaml
+mavlink_connection: udp:0.0.0.0:14550
+```
+
+---
+
+### Direct serial (Pixhawk / flight controller via USB)
+
+For a physical Pixhawk or any ArduPilot/PX4 board connected via USB:
+
+```yaml
+ingestion:
+  mode: mavlink
+  mavlink_connection: serial:COM3:57600    # Windows
+  # mavlink_connection: serial:/dev/ttyUSB0:57600  # Linux / macOS
+```
+
+```bash
+python -m guardian.ingest_runner
+```
+
+Guardian will wait for a MAVLink heartbeat, then begin assembling telemetry rows from the incoming message stream.
+
+---
+
+### Summary table
+
+| App / Source | Protocol | Default port | Connection string |
+|---|---|---|---|
+| QGroundControl | UDP MAVLink | 14550 | `udp:0.0.0.0:14550` |
+| Mission Planner | UDP MAVLink | 14550 | `udp:0.0.0.0:14550` |
+| MAVProxy bridge | UDP MAVLink | 14550 | `udp:0.0.0.0:14550` |
+| ArduPilot SITL (via MAVProxy) | UDP MAVLink | 14550 | `udp:0.0.0.0:14550` |
+| PX4 SITL (Gazebo) | UDP MAVLink | 14550 | `udp:0.0.0.0:14550` |
+| Pixhawk USB (Windows) | Serial MAVLink | COM3 | `serial:COM3:57600` |
+| Pixhawk USB (Linux) | Serial MAVLink | ttyUSB0 | `serial:/dev/ttyUSB0:57600` |
+
+---
+
 ## Full pipeline (metrics → validation → tests → summary)
 
 ```bash
