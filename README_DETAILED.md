@@ -1199,7 +1199,7 @@ logging:
   json_export_path: results/logs/alerts.jsonl
 
 database:
-  enabled: false                 # set to true to write SQLite DB
+  enabled: true                  # set to false to disable SQLite persistence
   path: results/guardian.db
 
 ingestion:

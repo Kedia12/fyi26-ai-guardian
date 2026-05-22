@@ -1,188 +1,196 @@
 # FYI26 AI Guardian
 
-This project is a prototype for the Airbus Fly Your Ideas 2026 challenge.
+**Human-in-the-Loop AI Guardian for Connected Aerospace Systems**
+*Airbus Fly Your Ideas 2026 competition prototype*
 
-## Goal
-Build a Human-in-the-Loop AI Guardian for connected aerospace systems.
+---
 
-The Guardian:
-- receives telemetry from an RC aircraft testbed or replayed scenario files
-- checks data integrity and physical consistency
-- detects suspicious anomalies
-- generates alerts with severity, confidence, reason code, and recommended action
-- supports human decisions through a web dashboard workflow
+## What it does
 
-## Problem statement
-Connected aerospace systems rely on continuous data exchange between sensors, onboard systems, operators, and connected infrastructure. This improves efficiency and awareness, but also increases vulnerability to bad data, missing transmissions, spoofed navigation inputs, sensor failures, and other anomalies that can affect decision-making and safety.
+The Guardian sits between raw RC aircraft telemetry and a human operator. It continuously monitors incoming sensor data, detects anomalies using both deterministic rules and a machine learning model, and generates structured, explainable alerts — so operators can make fast, informed decisions without being overwhelmed by raw numbers.
 
-## Core idea
-The project proposes a Human-in-the-Loop AI Guardian: a lightweight monitoring and decision-support layer that combines:
-- deterministic integrity and physical-consistency checks
-- lightweight anomaly detection with Isolation Forest
-- explainable alert generation
-- operator-oriented safe response guidance
+It is deliberately **not** an autonomous system. Every detection is explained, every alert includes a recommended action, and every decision stays with the human.
 
-The objective is not only to detect anomalies, but to turn them into explainable and auditable decisions that a human operator can trust and validate.
+---
 
-## Current prototype scope
-The current prototype is focused on:
-- replaying telemetry scenarios from CSV files
-- applying rule-based anomaly checks
-- scoring telemetry with a lightweight ML anomaly model
-- generating structured alerts
-- validating core logic through automated tests
-- exploring both isolated and combined anomaly scenarios
+## The problem
 
-In later phases, the same architecture is intended to connect to a real RC aircraft telemetry node with onboard sensors.
+Connected aerospace systems rely on continuous data exchange between sensors, onboard computers, ground operators, and infrastructure. This improves situational awareness — but also introduces new failure modes:
 
-## Implemented features
-- rule-based anomaly detection for:
-  - packet loss
-  - out-of-order packets
-  - duplicate packets
-  - IMU dropout
-  - frozen IMU
-  - low battery
-  - GPS fix loss
-  - GPS jump
-  - GPS / IMU inconsistency
-- ML anomaly scoring using Isolation Forest
-- scenario replay from CSV
-- telemetry and alert schema validation helpers
-- command-line runner
-- automated unit tests
+- Missing or reordered data packets
+- Spoofed or jumped GPS readings
+- IMU sensor dropouts and frozen readings
+- Battery degradation during flight
+- Inconsistencies between GPS and inertial data
 
-## Project structure
-- `docs/` → architecture and schemas
-- `data/scenarios/` → replayable telemetry CSV files
-- `guardian/` → Guardian Python code
-- `tests/` → automated tests
+A monitoring layer that catches these anomalies in real time, explains them in plain language, and supports the operator's response is critical for safety-of-flight decisions.
 
-## Scenario files
-Current replay scenarios include:
-- `normal_flight.csv`
-- `packet_loss.csv`
-- `sensor_dropout.csv`
-- `gps_jump.csv`
-- `low_battery.csv`
-- `out_of_order_packets.csv`
-- `duplicate_packet.csv`
-- `frozen_imu.csv`
-- `gps_fix_loss.csv`
-- `combined_fault.csv`
+---
+
+## System overview
+
+```
+Telemetry sources
+  CSV replay | UDP socket | Serial port | MAVLink (QGC, Mission Planner, ArduPilot, PX4)
+              │
+              ▼
+    Guardian Engine
+      9 rule-based checks  +  Isolation Forest ML model
+      → build_alert() for each anomaly detected
+              │
+       ┌──────┴──────┐
+       ▼             ▼
+  SQLite DB     JSONL export
+  (guardian.db) (alerts.jsonl)
+       │
+       ▼
+  Flask Dashboard  →  http://localhost:5000
+    Live telemetry panel
+    Active alert feed  (ACK / Escalate / Resolve)
+    Alert history
+```
+
+---
+
+## Detection capabilities
+
+### 9 deterministic rule checks
+
+| Reason code | Severity | Trigger |
+|---|---|---|
+| `PACKET_LOSS` | WARNING | Timestamp gap > 200 ms or sequence gap |
+| `OUT_OF_ORDER_PACKET` | WARNING | Packet ID < previous packet ID |
+| `DUPLICATE_PACKET` | WARNING | Packet ID == previous packet ID |
+| `IMU_DROPOUT` | CRITICAL | All 6 IMU fields exactly 0.0 |
+| `IMU_FROZEN` | WARNING | All 6 IMU fields identical to previous row |
+| `LOW_BATTERY` | WARNING / CRITICAL | Voltage < 10.5 V (WARNING) or < 10.2 V (CRITICAL) |
+| `GPS_FIX_LOSS` | CRITICAL | `gps_fix_status == 0` or `satellite_count < 4` |
+| `GPS_JUMP` | WARNING | Lat/lon change > 0.001° or speed change > 15 m/s |
+| `GPS_IMU_INCONSISTENCY` | WARNING | GPS moved but IMU shows near-zero motion |
+
+### ML anomaly scoring
+
+An **Isolation Forest** model is trained on clean `normal_flight.csv` data. Every incoming row is scored; scores above the configurable threshold generate an `ML_ANOMALY` alert. The ML layer catches composite or unusual anomalies that no single rule covers.
+
+---
+
+## Validated performance
+
+```
+Scenarios tested:  11 / 11 passed
+Test suite:        162 passed, 6 skipped (MAVLink SITL — no hardware required)
+Avg Precision:     0.864
+Avg Recall:        0.909
+```
+
+All thresholds, ML parameters, and feature flags are configurable in `config/guardian_config.yaml` — no code changes needed.
+
+---
+
+## Compatible aircraft apps
+
+Guardian speaks MAVLink and works with any app that outputs it:
+
+| App | Protocol | Connection |
+|---|---|---|
+| QGroundControl | UDP MAVLink | `udp:0.0.0.0:14550` |
+| Mission Planner | UDP MAVLink | `udp:0.0.0.0:14550` |
+| ArduPilot SITL (via MAVProxy) | UDP MAVLink | `udp:0.0.0.0:14550` |
+| PX4 / Gazebo SITL | UDP MAVLink | `udp:0.0.0.0:14550` |
+| Pixhawk USB (Windows) | Serial MAVLink | `serial:COM3:57600` |
+| Pixhawk USB (Linux) | Serial MAVLink | `serial:/dev/ttyUSB0:57600` |
+
+See [How_To_Run.md](How_To_Run.md) for full setup instructions per app.
+
+---
+
+## Quick start
+
+```bash
+# 1. Install dependencies
+pip install -r requirements.txt
+
+# 2. Run a fault scenario (CSV replay)
+python -m guardian.main data/scenarios/combined_fault.csv
+
+# 3. Start the web dashboard
+python -m dashboard.app
+# Open: http://localhost:5000
+
+# 4. Run the full validation pipeline
+python -m guardian.run_pipeline
+
+# 5. Run all tests
+pytest -q
+```
+
+---
+
+## Live ingestion
+
+```bash
+# UDP (from a GCS or simulator)
+# Set ingestion.mode: udp in config/guardian_config.yaml
+python -m guardian.ingest_runner
+
+# MAVLink (from a real flight controller or SITL)
+# Set ingestion.mode: mavlink in config/guardian_config.yaml
+python -m guardian.ingest_runner
+```
+
+---
 
 ## Tech stack
-- Python
-- pandas
-- scikit-learn
-- pytest
-- CSV-based scenario replay
-- planned RC aircraft telemetry integration
 
+| Layer | Technology |
+|---|---|
+| Anomaly detection | Python · scikit-learn (Isolation Forest) · pandas |
+| Rule engine | Pure Python (9 deterministic checks) |
+| Database | SQLite (stdlib `sqlite3`, no ORM) |
+| Alert export | JSONL (stdlib `json`) |
+| Dashboard | Flask 3 · Jinja2 · Leaflet map |
+| Live ingestion | UDP sockets · pyserial · pymavlink |
+| Testing | pytest (162 tests) |
+| Packaging | pyproject.toml · Dockerfile · docker-compose · GitHub Actions CI |
 
+---
 
-## How to run
-Run the default scenario:
+## Project structure
 
-```bash
-python -m guardian.main
+```
+guardian/           Core detection engine (rules, ML, alerts, DB, export)
+guardian/ingestion/ Live data listeners (UDP, serial, MAVLink, MQTT stub)
+dashboard/          Flask web UI (routes, templates)
+data/scenarios/     11 telemetry replay CSV files
+data/labels/        Ground-truth labels for precision/recall measurement
+config/             guardian_config.yaml (all tuneable settings)
+tests/              162 automated tests
+docs/               Architecture, schema, and contract documentation
 ```
 
-Run a specific scenario:
-
-```bash
-python -m guardian.main data/scenarios/combined_fault.csv
-```
-
-Start live UDP ingestion (listens on port 14550):
-
-```bash
-python -m guardian.main --live udp
-```
-
-## Installation
-
-Install as an editable package (recommended for development):
-
-```bash
-pip install -e .
-```
-
-This registers three console scripts:
-
-| Command             | Action                                      |
-|---------------------|---------------------------------------------|
-| `guardian`          | Replay a CSV scenario or start live mode    |
-| `guardian-dashboard`| Start the Flask web dashboard               |
-| `guardian-live`     | Start live UDP/serial ingestion directly    |
-
-Install all runtime + dev dependencies at once:
-
-```bash
-pip install -r requirements.txt
-```
-
-## Dashboard
-
-Enable the database in `config/guardian_config.yaml`:
-
-```yaml
-database:
-  enabled: true
-  path: results/guardian.db
-```
-
-Populate it by replaying a scenario, then start the dashboard:
-
-```bash
-python -m guardian.main data/scenarios/combined_fault.csv
-python -m dashboard.app          # open http://localhost:5000
-```
-
-## Docker
-
-Build and run the full stack with Docker Compose:
-
-```bash
-docker-compose up --build
-```
-
-Open `http://localhost:5000` for the dashboard.
-
-Or build and run the image manually:
-
-```bash
-docker build -t fyi26-guardian .
-docker run -p 5000:5000 \
-  -v $(pwd)/data:/app/data \
-  -v $(pwd)/results:/app/results \
-  -v $(pwd)/config:/app/config \
-  fyi26-guardian
-```
-
-Override the default command to run tests inside the container:
-
-```bash
-docker run fyi26-guardian python -m pytest -q
-```
-
-## CI
-
-The project uses GitHub Actions for continuous integration (`.github/workflows/ci.yml`).
-
-On every push and pull request to `main`:
-1. Install dependencies from `requirements.txt`
-2. Run the full test suite with `pytest -q`
-3. Generate scenario metrics (`guardian.metrics`)
-4. Run expected-vs-observed validation (`guardian.validation`)
+---
 
 ## Makefile shortcuts
 
 ```bash
-make test          # run pytest
-make pipeline      # full pipeline: metrics → validation → tests → summary
-make dashboard     # start Flask dashboard
-make docker-build  # build Docker image
+make test          # pytest -q
+make pipeline      # metrics → validation → tests → summary
+make dashboard     # start Flask on port 5000
+make docker-build  # docker build -t fyi26-guardian .
 make docker-run    # run container with data/results/config mounts
 make install       # pip install -e .
 ```
+
+---
+
+## CI
+
+GitHub Actions runs on every push to `main`:
+1. Install dependencies
+2. Run full test suite (`pytest -q`)
+3. Generate scenario and precision/recall metrics
+4. Run expected-vs-observed validation (11/11 must pass)
+
+---
+
+*FYI26 AI Guardian — built for Airbus Fly Your Ideas 2026.*
