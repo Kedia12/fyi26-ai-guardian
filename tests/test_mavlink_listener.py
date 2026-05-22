@@ -21,7 +21,7 @@ pytestmark = pytest.mark.skipif(
 @pytest.fixture
 def listener():
     from guardian.ingestion.mavlink_listener import MAVLinkListener
-    l = MAVLinkListener(connection_string="udp:127.0.0.1:14550", system_id=1)
+    l = MAVLinkListener(connection_string="udpin:0.0.0.0:14550", system_id=1)
     yield l
     l.stop()
 

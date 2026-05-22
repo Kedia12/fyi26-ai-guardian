@@ -98,7 +98,7 @@ class MAVLinkListener:
 
     def _receive_loop(self, assembler, callback):
         _HANDLED = {
-            "SCALED_IMU", "GPS_RAW_INT", "VFR_HUD",
+            "SCALED_IMU", "SCALED_IMU2", "GPS_RAW_INT", "VFR_HUD",
             "SYS_STATUS", "SCALED_PRESSURE", "HEARTBEAT",
         }
 
@@ -128,7 +128,7 @@ class MAVLinkListener:
 
     @staticmethod
     def _extract_fields(msg_type, msg):
-        if msg_type == "SCALED_IMU":
+        if msg_type in ("SCALED_IMU", "SCALED_IMU2"):
             return {
                 "accel_x_g": msg.xacc / 1000.0,
                 "accel_y_g": msg.yacc / 1000.0,
