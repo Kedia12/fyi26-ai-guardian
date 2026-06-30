@@ -47,11 +47,11 @@ Confirm that the Guardian prototype is coherent, testable, documented, and ready
 - [x] Metrics and validation can be regenerated automatically
 
 ## Remaining optional polish
-- [ ] add terminal PASS/FAIL summary to the end-to-end helper
-- [ ] add dashboard contract doc
-- [ ] add live telemetry ingestion bridge
-- [ ] add database-backed persistence
-- [ ] add JSON export for dashboard/frontend consumption
+- [x] add terminal PASS/FAIL summary to the end-to-end helper
+- [x] add dashboard contract doc
+- [x] add live telemetry ingestion bridge
+- [x] add database-backed persistence
+- [x] add JSON export for dashboard/frontend consumption
 
 ## Conclusion
 Guardian Phase 1 is considered complete when the prototype can be replayed, validated, tested, and explained consistently. It is then ready to support the next phase: dashboard integration and live telemetry ingestion.

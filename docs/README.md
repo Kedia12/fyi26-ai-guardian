@@ -46,7 +46,7 @@ Connected aerospace systems depend on continuous data exchange between sensors, 
   ┌─────────────────────────────────────────────────────────┐
   │                  GUARDIAN ENGINE                        │
   │                                                         │
-  │   9 Deterministic Rule Checks                           │
+  │   10 Deterministic Rule Checks                          │
   │   +  Isolation Forest ML Model                          │
   │   →  build_alert()  (severity · reason · action)        │
   └──────────────────┬──────────────────┬───────────────────┘
@@ -70,7 +70,7 @@ Connected aerospace systems depend on continuous data exchange between sensors, 
 
 ## Detection Capabilities
 
-### 9 Deterministic Rule Checks
+### 10 Deterministic Rule Checks
 
 | Reason Code | Severity | Trigger Condition |
 |---|---|---|
@@ -83,6 +83,20 @@ Connected aerospace systems depend on continuous data exchange between sensors, 
 | `GPS_FIX_LOSS` | CRITICAL | Fix status == 0 or satellite count < 4 |
 | `GPS_JUMP` | CRITICAL | Lat/lon change > 0.001° or speed change > 15 m/s |
 | `GPS_IMU_INCONSISTENCY` | CRITICAL | GPS moved but IMU shows near-zero motion |
+| `GEOFENCE_BREACH` | CRITICAL | Aircraft GPS position exits the configured operating zone polygon |
+
+Geofencing is configured via the `geofence` section in `config/guardian_config.yaml`. Define any polygon as a list of lat/lon vertices; the system uses a ray-casting algorithm to check every telemetry row. The boundary is also drawn as an overlay on the live aircraft map in the dashboard.
+
+### Predictive Alerts (Forecasting)
+
+In addition to reactive detection, Guardian can **predict anomalies before they become faults** using a rolling linear-regression window on live telemetry:
+
+| Reason Code | Trigger |
+|---|---|
+| `PREDICTED_LOW_BATTERY` | Voltage drain rate exceeds threshold — warns operator before `LOW_BATTERY` fires |
+| `PREDICTED_IMU_DRIFT` | Gyroscope magnitude trending upward — warns before `IMU_FROZEN` or `IMU_DROPOUT` |
+
+Predicted alerts are visually distinguished in the dashboard with a purple **Predicted** badge. All parameters (`window_size`, `battery_slope_threshold`, `imu_drift_threshold`) are tunable in `config/guardian_config.yaml` under the `prediction` section.
 
 ### ML Anomaly Detection
 
@@ -166,7 +180,7 @@ Full setup instructions per app: [How_To_Run.md](How_To_Run.md)
 | **Rule Engine** | Pure Python — 9 deterministic checks |
 | **Database** | SQLite (stdlib `sqlite3`, no ORM) |
 | **Alert Export** | JSONL (stdlib `json`) |
-| **Web Dashboard** | Flask 3 · Jinja2 · Leaflet map |
+| **Web Dashboard** | Flask 3 · React 18 · TypeScript · Vite · Tailwind CSS · Leaflet map (Jinja2 fallback) |
 | **Live Ingestion** | UDP sockets · pyserial · pymavlink |
 | **Testing** | pytest — 162 automated tests |
 | **Packaging** | pyproject.toml · Dockerfile · docker-compose · GitHub Actions CI |
@@ -179,6 +193,7 @@ Full setup instructions per app: [How_To_Run.md](How_To_Run.md)
 guardian/               Core detection engine (rules, ML, alerts, DB, export)
 guardian/ingestion/     Live data listeners (UDP, serial, MAVLink, MQTT stub)
 dashboard/              Flask web UI (routes, templates)
+dashboard/ui/           React 18 + TypeScript frontend (Vite · Tailwind · Leaflet)
 data/scenarios/         11 telemetry replay CSV files
 data/labels/            Ground-truth labels for precision/recall measurement
 config/                 guardian_config.yaml — all tuneable settings

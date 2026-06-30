@@ -1,3 +1,5 @@
+from unittest.mock import patch
+
 from guardian.rules import (
     check_packet_loss,
     check_out_of_order_packet,
@@ -8,6 +10,7 @@ from guardian.rules import (
     check_gps_fix_loss,
     check_gps_jump,
     check_gps_imu_inconsistency,
+    check_geofence_breach,
 )
 
 
@@ -226,4 +229,39 @@ def test_missing_values_do_not_crash_rules():
     assert check_gps_jump(prev_row, row) == []
     assert check_gps_imu_inconsistency(prev_row, row) == []
     assert check_low_battery(row) == []
+
+
+# Shared test polygon: a box roughly around the default test coordinates.
+_TEST_POLYGON = [
+    [-1.9800, 30.0300],
+    [-1.9800, 30.0900],
+    [-1.9200, 30.0900],
+    [-1.9200, 30.0300],
+]
+
+_GEOFENCE_CFG_ON = {"geofence": {"enabled": True, "polygon": _TEST_POLYGON}}
+_GEOFENCE_CFG_OFF = {"geofence": {"enabled": False, "polygon": _TEST_POLYGON}}
+
+
+def test_geofence_no_alert_when_inside():
+    row = make_row(gps_lat_deg=-1.9500, gps_lon_deg=30.0600)
+    with patch("guardian.rules.get_config", return_value=_GEOFENCE_CFG_ON):
+        alerts = check_geofence_breach(row)
+    assert alerts == []
+
+
+def test_geofence_breach_when_outside():
+    row = make_row(gps_lat_deg=-2.5000, gps_lon_deg=31.0000)
+    with patch("guardian.rules.get_config", return_value=_GEOFENCE_CFG_ON):
+        alerts = check_geofence_breach(row)
+    assert len(alerts) == 1
+    assert alerts[0]["reason_code"] == "GEOFENCE_BREACH"
+    assert alerts[0]["severity"] == "CRITICAL"
+
+
+def test_geofence_disabled_produces_no_alert():
+    row = make_row(gps_lat_deg=-2.5000, gps_lon_deg=31.0000)
+    with patch("guardian.rules.get_config", return_value=_GEOFENCE_CFG_OFF):
+        alerts = check_geofence_breach(row)
+    assert alerts == []
     

@@ -210,6 +210,9 @@ marimo/_static/
 marimo/_lsp/
 __marimo__/
 
+# Node / React
+node_modules/
+
 # Project outputs
 outputs/
 results/

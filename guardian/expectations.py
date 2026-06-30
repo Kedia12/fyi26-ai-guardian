@@ -15,4 +15,5 @@ EXPECTED_REASON_CODES = {
         "GPS_FIX_LOSS",
         "GPS_JUMP",
     ],
+    "battery_drain_trend.csv": ["PREDICTED_LOW_BATTERY"],
 }

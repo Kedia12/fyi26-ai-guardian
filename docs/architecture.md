@@ -30,6 +30,8 @@ This layer stores telemetry, anomaly scores, alerts, and operator actions for tr
 ### Web Dashboard
 The dashboard provides a real-time view of telemetry, anomaly status, and alert history. It is designed to present prioritized alerts clearly, reduce alert fatigue, and support rapid understanding during abnormal situations.
 
+The frontend is built with **React 18 + TypeScript**, bundled by **Vite**, and styled with **Tailwind CSS**. It includes five components: `Header`, `TelemetryPanel`, `ActiveAlerts`, `AlertHistory`, and `AircraftMap` (Leaflet). Flask serves the compiled React build from `dashboard/ui/dist/` when available and falls back to the Jinja2 template otherwise.
+
 ### Operator Action
 The operator remains part of the decision loop. Depending on the situation, the operator may acknowledge an alert, override a recommendation, escalate a case, or request verification.
 

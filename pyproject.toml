@@ -14,6 +14,7 @@ dependencies = [
     "Flask>=3.0",
     "pyserial>=3.5",
     "pymavlink>=2.4",
+    "anthropic>=0.40",
 ]
 
 [project.optional-dependencies]
@@ -24,6 +25,7 @@ mqtt = ["paho-mqtt>=1.6"]
 guardian           = "guardian.main:_cli"
 guardian-dashboard = "dashboard.app:run_dashboard"
 guardian-live      = "guardian.ingest_runner:run_live"
+guardian-report    = "guardian.report_generator:main"
 
 [tool.setuptools.packages.find]
 where   = ["."]

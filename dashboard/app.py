@@ -6,9 +6,16 @@ from guardian.config import get_config
 from guardian.db import GuardianDB
 from dashboard.routes import build_blueprint
 
+_REACT_BUILD = Path(__file__).parent / "ui" / "dist"
+
 
 def create_app(db_path=None, config_path=None):
-    app = Flask(__name__, template_folder="templates")
+    app = Flask(
+        __name__,
+        template_folder="templates",
+        static_folder=str(_REACT_BUILD) if _REACT_BUILD.exists() else None,
+        static_url_path="",
+    )
     app.secret_key = "guardian-dashboard-secret"
 
     if db_path is None:
@@ -28,7 +35,7 @@ def create_app(db_path=None, config_path=None):
 
 def run_dashboard(host="0.0.0.0", port=5000):
     app = create_app()
-    app.run(host=host, port=port, debug=False)
+    app.run(host=host, port=port, debug=False, threaded=True)
 
 
 if __name__ == "__main__":

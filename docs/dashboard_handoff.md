@@ -130,6 +130,24 @@ This is enough for the first prototype demonstration.
 
 ---
 
+## 4.1 Current implementation status (Sprint 2 complete)
+
+The React UI at `dashboard/ui/` implements all Phase 1 panels:
+
+| Component | Panel covered |
+| --- | --- |
+| `Header.tsx` | App title and status bar |
+| `TelemetryPanel.tsx` | Live telemetry summary (section A) |
+| `ActiveAlerts.tsx` | Alert panel — severity, reason, confidence, action (section B) |
+| `AlertHistory.tsx` | Alert history / incident list (section C) |
+| `AircraftMap.tsx` | Aircraft GPS position on a Leaflet map |
+
+**Technology:** React 18 · TypeScript · Vite · Tailwind CSS · Leaflet / react-leaflet.
+
+**How it is served:** Flask checks for `dashboard/ui/dist/index.html` at startup. When found it serves the React build as static files; otherwise it falls back to the Jinja2 template. Build with `npm run build` inside `dashboard/ui/`.
+
+---
+
 ## 5. Recommended dashboard priorities
 
 ### First priority

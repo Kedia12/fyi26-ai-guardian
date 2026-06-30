@@ -82,3 +82,32 @@ ingestion:
   # Windows: COM3, COM4, etc.  Linux/macOS: /dev/ttyUSB0, /dev/ttyACM0, etc.
   serial_port: COM3
   serial_baud: 57600
+
+prediction:
+  # Set to true to enable predictive anomaly alerts.
+  enabled: true
+
+  # Number of consecutive telemetry rows to accumulate before running forecasts.
+  # Predictions are suppressed until the buffer is full.
+  window_size: 20
+
+  # Battery drain rate that triggers PREDICTED_LOW_BATTERY (V/ms, negative = draining).
+  # -0.0002 V/ms means the voltage is dropping faster than 0.2 V/s.
+  battery_slope_threshold: -0.0002
+
+  # Gyroscope magnitude growth rate that triggers PREDICTED_IMU_DRIFT (dps/ms).
+  # 0.05 dps/ms means the total gyro magnitude is growing faster than 50 dps/s.
+  imu_drift_threshold: 0.05
+
+geofence:
+  # Set to true to enable no-fly zone enforcement.
+  enabled: true
+
+  # Polygon vertices defining the allowed operating area (lat/lon pairs).
+  # The aircraft must remain INSIDE this polygon; any exit triggers GEOFENCE_BREACH.
+  # Default polygon covers a 0.05-degree (~5 km) box around the test flight origin.
+  polygon:
+    - [-1.9800, 30.0300]
+    - [-1.9800, 30.0900]
+    - [-1.9200, 30.0900]
+    - [-1.9200, 30.0300]

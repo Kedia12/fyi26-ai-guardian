@@ -1,5 +1,5 @@
 from guardian.alerts import build_alert
-from guardian.config import get_rule_threshold
+from guardian.config import get_rule_threshold, get_config
 
 """
 Deterministic rule-based anomaly checks for the Guardian.
@@ -262,6 +262,54 @@ def check_gps_jump(prev_row, row):
                 reason_code="GPS_JUMP",
                 reason_text="GPS position or speed changed abruptly beyond expected limits.",
                 recommended_action="VERIFY_OPERATOR",
+            )
+        )
+
+    return alerts
+
+
+def _point_in_polygon(lat, lon, polygon):
+    """Ray-casting algorithm: returns True if (lat, lon) is inside the polygon."""
+    n = len(polygon)
+    inside = False
+    j = n - 1
+    for i in range(n):
+        lat_i, lon_i = polygon[i]
+        lat_j, lon_j = polygon[j]
+        if ((lon_i > lon) != (lon_j > lon)) and (
+            lat < (lat_j - lat_i) * (lon - lon_i) / (lon_j - lon_i) + lat_i
+        ):
+            inside = not inside
+        j = i
+    return inside
+
+
+def check_geofence_breach(row):
+    alerts = []
+
+    cfg = get_config().get("geofence", {})
+    if not cfg.get("enabled", False):
+        return alerts
+
+    polygon = cfg.get("polygon", [])
+    if len(polygon) < 3:
+        return alerts
+
+    lat = _safe_float(row, "gps_lat_deg")
+    lon = _safe_float(row, "gps_lon_deg")
+
+    if lat is None or lon is None:
+        return alerts
+
+    if not _point_in_polygon(lat, lon, polygon):
+        alerts.append(
+            build_alert(
+                row=row,
+                severity="CRITICAL",
+                confidence=0.98,
+                reason_code="GEOFENCE_BREACH",
+                reason_text=f"Aircraft position ({lat:.6f}, {lon:.6f}) is outside the permitted operating zone.",
+                recommended_action="RETURN_TO_ZONE",
             )
         )
 

@@ -10,11 +10,13 @@ from guardian.rules import (
     check_gps_fix_loss,
     check_gps_jump,
     check_gps_imu_inconsistency,
+    check_geofence_breach,
 )
 from guardian.ml_model import GuardianML
 from guardian.export import AlertExporter
 from guardian.config import get_config, get_ml_param
 from guardian.alerts import build_alert
+from guardian.predictor import TelemetryBuffer, predict_battery_depletion, predict_imu_drift
 
 
 class GuardianEngine:
@@ -33,6 +35,9 @@ class GuardianEngine:
 
         # Instantiate the alert exporter based on config settings.
         cfg = get_config()
+        pred_cfg = cfg.get("prediction", {})
+        window_size = int(pred_cfg.get("window_size", 20))
+        self.telemetry_buffer = TelemetryBuffer(window_size=window_size)
         logging_cfg = cfg.get("logging", {})
         export_enabled = logging_cfg.get("json_export_enabled", False)
         export_path = logging_cfg.get("json_export_path", "results/logs/alerts.jsonl")
@@ -52,6 +57,11 @@ class GuardianEngine:
         alerts.extend(check_gps_fix_loss(row))
         alerts.extend(check_gps_jump(self.prev_row, row))
         alerts.extend(check_gps_imu_inconsistency(self.prev_row, row))
+        alerts.extend(check_geofence_breach(row))
+
+        self.telemetry_buffer.push(row)
+        alerts.extend(predict_battery_depletion(self.telemetry_buffer, row))
+        alerts.extend(predict_imu_drift(self.telemetry_buffer, row))
 
         anomaly_score = None
         if self.ml_ready:
