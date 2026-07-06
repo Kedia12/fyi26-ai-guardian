@@ -147,21 +147,35 @@ export default function AircraftMap() {
     const data: AircraftPosition[] = await r.json();
     setPositions(data);
     setStatusTime(new Date().toLocaleTimeString());
-    for (const pos of data) {
-      if (!pos.gps_lat_deg || !pos.gps_lon_deg) continue;
-      fetch(`/api/flight-trail?node_id=${encodeURIComponent(pos.node_id)}&limit=100`)
-        .then((r) => r.json())
-        .then((trail: TrailPoint[]) => {
+
+    const trailFetches = data
+      .filter((pos) => pos.gps_lat_deg && pos.gps_lon_deg)
+      .map(async (pos): Promise<[string, [number, number][]] | null> => {
+        try {
+          const tr = await fetch(
+            `/api/flight-trail?node_id=${encodeURIComponent(pos.node_id)}&limit=100`,
+          );
+          const trail: TrailPoint[] = await tr.json();
           const pts = trail
             .filter((p) => p.gps_lat_deg && p.gps_lon_deg)
             .map((p): [number, number] => [
               parseFloat(String(p.gps_lat_deg)),
               parseFloat(String(p.gps_lon_deg)),
             ]);
-          setTrails((prev) => ({ ...prev, [pos.node_id]: pts }));
-        })
-        .catch(() => {});
-    }
+          return [pos.node_id, pts];
+        } catch {
+          return null;
+        }
+      });
+
+    const results = await Promise.all(trailFetches);
+    setTrails((prev) => {
+      const next = { ...prev };
+      for (const entry of results) {
+        if (entry) next[entry[0]] = entry[1];
+      }
+      return next;
+    });
   }, 5000);
 
   usePolling(async () => {
@@ -173,7 +187,7 @@ export default function AircraftMap() {
         data.filter((ac: LiveAircraft) => ac.latitude != null && ac.longitude != null),
       );
     }
-  }, 15000);
+  }, 30000);
 
   const statusText = useMemo(() => {
     if (positions.length > 0 || liveAircraft.length > 0) {

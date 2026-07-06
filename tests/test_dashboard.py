@@ -1,57 +1,6 @@
 import json
-import pytest
 from dashboard.app import create_app
-from guardian.db import GuardianDB
-
-
-def make_alert(**overrides):
-    base = {
-        "timestamp_ms": 1000,
-        "packet_id": 1,
-        "node_id": "node_01",
-        "severity": "WARNING",
-        "confidence": 0.85,
-        "reason_code": "TEST_ALERT",
-        "reason_text": "Test alert.",
-        "recommended_action": "CHECK_LINK",
-        "alert_status": "active",
-    }
-    base.update(overrides)
-    return base
-
-
-def make_row(**overrides):
-    base = {
-        "timestamp_ms": 1000,
-        "packet_id": 1,
-        "node_id": "node_01",
-        "accel_x_g": 0.01,
-        "accel_y_g": 0.02,
-        "accel_z_g": 1.0,
-        "battery_voltage_v": 11.8,
-        "low_power_flag": 0,
-    }
-    base.update(overrides)
-    return base
-
-
-@pytest.fixture
-def app(tmp_path):
-    db_path = tmp_path / "test_guardian.db"
-    db = GuardianDB(path=db_path)
-    db.insert_alert(make_alert(reason_code="PACKET_LOSS", severity="WARNING"))
-    db.insert_alert(make_alert(reason_code="LOW_BATTERY", severity="CRITICAL"))
-    db.insert_telemetry(make_row(packet_id=5, battery_voltage_v=10.1))
-    db.close()
-
-    flask_app = create_app(db_path=str(db_path))
-    flask_app.config["TESTING"] = True
-    return flask_app
-
-
-@pytest.fixture
-def client(app):
-    return app.test_client()
+from conftest import TEST_ADMIN_USER, TEST_ADMIN_PASS
 
 
 # ── index page ────────────────────────────────────────────────────────────────
@@ -214,11 +163,14 @@ def test_form_action_redirects_to_index(client):
     assert response.status_code in (301, 302)
 
 
-def test_api_telemetry_returns_null_when_empty(tmp_path):
+def test_api_telemetry_returns_null_when_empty(tmp_path, monkeypatch):
+    monkeypatch.setenv("GUARDIAN_ADMIN_USERNAME", TEST_ADMIN_USER)
+    monkeypatch.setenv("GUARDIAN_ADMIN_PASSWORD", TEST_ADMIN_PASS)
     db_path = tmp_path / "empty.db"
     flask_app = create_app(db_path=str(db_path))
     flask_app.config["TESTING"] = True
     c = flask_app.test_client()
+    c.post("/api/login", json={"username": TEST_ADMIN_USER, "password": TEST_ADMIN_PASS})
     response = c.get("/api/telemetry")
     assert response.status_code == 200
     assert json.loads(response.data) is None

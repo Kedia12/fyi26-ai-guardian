@@ -72,16 +72,26 @@ database:
 
 ingestion:
   # Active ingestion mode. Options: replay, udp, serial, mavlink.
-  mode: udp
+  mode: mavlink
 
   # UDP listener settings (used when mode: udp or mode: mavlink).
   udp_host: 0.0.0.0
-  udp_port: 14550
+  udp_port: 14551
 
   # Serial port settings (used when mode: serial).
   # Windows: COM3, COM4, etc.  Linux/macOS: /dev/ttyUSB0, /dev/ttyACM0, etc.
   serial_port: COM3
   serial_baud: 57600
+
+  # MAVLink connection string (used when mode: mavlink).
+  # This Windows SITL build exits entirely if its primary port (5760)
+  # client ever disconnects, so Guardian (long-running) holds 5760, and
+  # Mission Planner connects separately on 5762 once it's opened up.
+  # Examples: tcp:127.0.0.1:5760 | udp:0.0.0.0:14551 | serial:COM3:57600
+  mavlink_connection: tcp:127.0.0.1:5760
+
+  # MAVLink system ID to monitor (1 = first/primary autopilot).
+  mavlink_system_id: 1
 
 prediction:
   # Set to true to enable predictive anomaly alerts.
@@ -105,9 +115,11 @@ geofence:
 
   # Polygon vertices defining the allowed operating area (lat/lon pairs).
   # The aircraft must remain INSIDE this polygon; any exit triggers GEOFENCE_BREACH.
-  # Default polygon covers a 0.05-degree (~5 km) box around the test flight origin.
+  # Centered on the ArduPilot SITL default home (CMAC, Canberra AU) so live
+  # SITL testing gets a clean baseline instead of an immediate breach; fly
+  # the sim vehicle outside this box to test the alert live.
   polygon:
-    - [-1.9800, 30.0300]
-    - [-1.9800, 30.0900]
-    - [-1.9200, 30.0900]
-    - [-1.9200, 30.0300]
+    - [-35.3933, 149.1352]
+    - [-35.3933, 149.1952]
+    - [-35.3333, 149.1952]
+    - [-35.3333, 149.1352]

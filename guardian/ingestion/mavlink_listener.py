@@ -21,6 +21,7 @@ SCALED_PRESSURE press_abs      hPa → pressure_hpa
 """
 
 import threading
+import time
 
 try:
     from pymavlink import mavutil as _mavutil
@@ -74,6 +75,13 @@ class MAVLinkListener:
         """
         self._conn = _mavutil.mavlink_connection(self.connection_string,
                                                   source_system=self.system_id)
+        # Identify ourselves as a GCS with an outbound heartbeat. For a
+        # udpout: connection this is also what performs the socket's first
+        # send — required on Windows before recvfrom() will succeed, and
+        # what registers our address with the remote endpoint so it starts
+        # relaying traffic back to us.
+        self._send_heartbeat()
+        self._request_data_streams()
         node_id = f"mavlink_{self.system_id}"
         assembler = MAVLinkAssembler(node_id=node_id)
 
@@ -96,14 +104,46 @@ class MAVLinkListener:
         )
         self._thread.start()
 
+    def _send_heartbeat(self):
+        try:
+            self._conn.mav.heartbeat_send(
+                _mavutil.mavlink.MAV_TYPE_GCS,
+                _mavutil.mavlink.MAV_AUTOPILOT_INVALID,
+                0, 0, 0,
+            )
+        except Exception:
+            pass
+
+    def _request_data_streams(self):
+        # ArduPilot only auto-streams HEARTBEAT/TIMESYNC on a fresh
+        # connection — SCALED_IMU/GPS_RAW_INT/VFR_HUD/SYS_STATUS/
+        # SCALED_PRESSURE require an explicit stream-rate request from the
+        # connecting GCS, same as any real ground station would send.
+        try:
+            self._conn.mav.request_data_stream_send(
+                self._conn.target_system or self.system_id,
+                self._conn.target_component or 1,
+                _mavutil.mavlink.MAV_DATA_STREAM_ALL,
+                10,  # Hz
+                1,   # start
+            )
+        except Exception:
+            pass
+
     def _receive_loop(self, assembler, callback):
         _HANDLED = {
             "SCALED_IMU", "SCALED_IMU2", "GPS_RAW_INT", "VFR_HUD",
             "SYS_STATUS", "SCALED_PRESSURE", "HEARTBEAT",
         }
+        last_heartbeat_sent = time.monotonic()
 
         while self._running:
             try:
+                now = time.monotonic()
+                if now - last_heartbeat_sent >= 1.0:
+                    self._send_heartbeat()
+                    last_heartbeat_sent = now
+
                 msg = self._conn.recv_match(type=list(_HANDLED), blocking=True,
                                             timeout=1.0)
                 if msg is None:
@@ -117,7 +157,12 @@ class MAVLinkListener:
 
                 fields = self._extract_fields(msg_type, msg)
                 if fields:
-                    fields["timestamp_ms"] = getattr(msg, "time_boot_ms", 0)
+                    # Not every handled message type carries time_boot_ms
+                    # (VFR_HUD, SYS_STATUS, GPS_RAW_INT do not) — fall back
+                    # to wall-clock time so timestamps still advance instead
+                    # of collapsing to a constant 0.
+                    fields["timestamp_ms"] = getattr(
+                        msg, "time_boot_ms", None) or int(time.time() * 1000)
                     row = assembler.update(fields)
                     if row is not None:
                         callback(row)

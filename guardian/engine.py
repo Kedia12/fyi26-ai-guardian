@@ -25,6 +25,11 @@ class GuardianEngine:
         self.db = db
         self.ml = GuardianML()
         self.ml_ready = False
+        # (node_id, reason_code) -> id of the currently open (non-resolved)
+        # DB alert for that condition. Lets process_row insert one alert per
+        # incident instead of one per telemetry row while the condition holds,
+        # and auto-resolve it once the condition clears.
+        self._open_alerts = {}
 
         project_root = Path(__file__).resolve().parent.parent
         normal_csv = project_root / "data" / "scenarios" / "normal_flight.csv"
@@ -83,11 +88,26 @@ class GuardianEngine:
 
         if self.db is not None:
             self.db.insert_telemetry(row)
+
+            firing_keys = {(a["node_id"], a["reason_code"]) for a in alerts}
             for alert in alerts:
-                self.db.insert_alert(
+                key = (alert["node_id"], alert["reason_code"])
+                if key in self._open_alerts:
+                    # Condition is still ongoing; it already has an open
+                    # alert, so don't insert a duplicate for every row.
+                    continue
+                alert_id = self.db.insert_alert(
                     alert,
                     ml_source=(alert.get("reason_code") == "ML_ANOMALY"),
                 )
+                self._open_alerts[key] = alert_id
+
+            # Auto-resolve open alerts for this node whose condition cleared.
+            node_id = row.get("node_id", "unknown")
+            for key in [k for k in self._open_alerts if k[0] == node_id]:
+                if key not in firing_keys:
+                    alert_id = self._open_alerts.pop(key)
+                    self.db.update_alert_status(alert_id, "resolved")
 
         # Export all alerts to the .jsonl log file
         if alerts:

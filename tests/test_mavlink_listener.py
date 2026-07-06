@@ -21,7 +21,11 @@ pytestmark = pytest.mark.skipif(
 @pytest.fixture
 def listener():
     from guardian.ingestion.mavlink_listener import MAVLinkListener
-    l = MAVLinkListener(connection_string="udpin:0.0.0.0:14550", system_id=1)
+    # Default assumes a MAVProxy bridge fanning SITL's TCP link out to UDP
+    # 14550. Override for setups (e.g. Mission Planner SITL on Windows)
+    # where Guardian connects directly to one of SITL's own TCP ports.
+    conn = os.environ.get("MAVLINK_SIM_CONNECTION", "udpin:0.0.0.0:14550")
+    l = MAVLinkListener(connection_string=conn, system_id=1)
     yield l
     l.stop()
 

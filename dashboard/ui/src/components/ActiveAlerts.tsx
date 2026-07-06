@@ -3,6 +3,7 @@ import { Alert } from '../types';
 
 interface Props {
   alerts: Alert[];
+  isAdmin: boolean;
   onConfirm: (id: number) => Promise<void>;
   onAction: (id: number, action: string) => Promise<void>;
 }
@@ -19,7 +20,7 @@ function isPredicted(reasonCode: string): boolean {
   return reasonCode?.startsWith('PREDICTED_') ?? false;
 }
 
-export default function ActiveAlerts({ alerts, onConfirm, onAction }: Props) {
+export default function ActiveAlerts({ alerts, isAdmin, onConfirm, onAction }: Props) {
   const [expanded, setExpanded] = useState(false);
   const [busy, setBusy] = useState<number | null>(null);
 
@@ -72,7 +73,10 @@ export default function ActiveAlerts({ alerts, onConfirm, onAction }: Props) {
             <table className="w-full text-xs">
               <thead>
                 <tr className="border-b border-guardian-border">
-                  {['ID', 'Severity', 'Code', 'Packet', 'Confirmation', 'Actions'].map(
+                  {(isAdmin
+                    ? ['ID', 'Severity', 'Code', 'Packet', 'Confirmation', 'Actions']
+                    : ['ID', 'Severity', 'Code', 'Packet']
+                  ).map(
                     (h) => (
                       <th
                         key={h}
@@ -117,37 +121,41 @@ export default function ActiveAlerts({ alerts, onConfirm, onAction }: Props) {
                     <td className="px-4 py-3 font-mono text-guardian-muted">
                       {a.packet_id}
                     </td>
-                    <td className="px-4 py-3">
-                      <button
-                        disabled={busy === a.id}
-                        onClick={() => doConfirm(a.id)}
-                        className={`text-[10px] font-semibold px-2.5 py-1 rounded border transition-colors disabled:opacity-50 ${
-                          a.confirmed
-                            ? 'border-green-700/50 text-green-400 bg-green-900/30 hover:bg-green-900/50'
-                            : 'border-guardian-border text-guardian-muted hover:border-guardian-muted'
-                        }`}
-                      >
-                        {a.confirmed ? '✓ Confirmed' : 'Unconfirmed'}
-                      </button>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex gap-1.5">
-                        {[
-                          { key: 'acknowledge', label: 'ACK', cls: 'border-amber-700/50 text-amber-400 hover:bg-amber-900/30' },
-                          { key: 'escalate', label: 'ESC', cls: 'border-red-700/50 text-red-400 hover:bg-red-900/30' },
-                          { key: 'resolve', label: 'RES', cls: 'border-green-700/50 text-green-400 hover:bg-green-900/30' },
-                        ].map(({ key, label, cls }) => (
+                    {isAdmin && (
+                      <>
+                        <td className="px-4 py-3">
                           <button
-                            key={key}
                             disabled={busy === a.id}
-                            onClick={() => doAction(a.id, key)}
-                            className={`text-[10px] font-bold px-2 py-1 rounded border transition-colors disabled:opacity-50 ${cls}`}
+                            onClick={() => doConfirm(a.id)}
+                            className={`text-[10px] font-semibold px-2.5 py-1 rounded border transition-colors disabled:opacity-50 ${
+                              a.confirmed
+                                ? 'border-green-700/50 text-green-400 bg-green-900/30 hover:bg-green-900/50'
+                                : 'border-guardian-border text-guardian-muted hover:border-guardian-muted'
+                            }`}
                           >
-                            {label}
+                            {a.confirmed ? '✓ Confirmed' : 'Unconfirmed'}
                           </button>
-                        ))}
-                      </div>
-                    </td>
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex gap-1.5">
+                            {[
+                              { key: 'acknowledge', label: 'ACK', cls: 'border-amber-700/50 text-amber-400 hover:bg-amber-900/30' },
+                              { key: 'escalate', label: 'ESC', cls: 'border-red-700/50 text-red-400 hover:bg-red-900/30' },
+                              { key: 'resolve', label: 'RES', cls: 'border-green-700/50 text-green-400 hover:bg-green-900/30' },
+                            ].map(({ key, label, cls }) => (
+                              <button
+                                key={key}
+                                disabled={busy === a.id}
+                                onClick={() => doAction(a.id, key)}
+                                className={`text-[10px] font-bold px-2 py-1 rounded border transition-colors disabled:opacity-50 ${cls}`}
+                              >
+                                {label}
+                              </button>
+                            ))}
+                          </div>
+                        </td>
+                      </>
+                    )}
                   </tr>
                 ))}
               </tbody>

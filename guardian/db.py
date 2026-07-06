@@ -63,6 +63,17 @@ CREATE TABLE IF NOT EXISTS Validation_Metrics (
     ml_alerts           INTEGER,
     recorded_at         TEXT
 );
+
+CREATE TABLE IF NOT EXISTS Users (
+    id                  INTEGER PRIMARY KEY AUTOINCREMENT,
+    username            TEXT UNIQUE NOT NULL,
+    password_hash       TEXT NOT NULL,
+    role                TEXT NOT NULL DEFAULT 'user',
+    disabled            INTEGER NOT NULL DEFAULT 0,
+    email               TEXT,
+    created_at          TEXT,
+    password_changed_at TEXT
+);
 """
 
 
@@ -86,6 +97,15 @@ class GuardianDB:
             self._conn.execute(
                 "ALTER TABLE Alerts ADD COLUMN confirmed INTEGER NOT NULL DEFAULT 0"
             )
+
+        existing_user_cols = {
+            row[1]
+            for row in self._conn.execute("PRAGMA table_info(Users)").fetchall()
+        }
+        if "email" not in existing_user_cols:
+            self._conn.execute("ALTER TABLE Users ADD COLUMN email TEXT")
+        if "password_changed_at" not in existing_user_cols:
+            self._conn.execute("ALTER TABLE Users ADD COLUMN password_changed_at TEXT")
 
     def _now(self):
         return datetime.now(timezone.utc).isoformat()
@@ -196,6 +216,81 @@ class GuardianDB:
         rows = [dict(row) for row in cur.fetchall()]
         rows.reverse()
         return rows
+
+    def insert_user(self, username, password_hash, role="user", email=None):
+        cur = self._conn.execute(
+            "INSERT INTO Users (username, password_hash, role, disabled, email, created_at) "
+            "VALUES (?, ?, ?, 0, ?, ?)",
+            [username, password_hash, role, email, self._now()],
+        )
+        self._conn.commit()
+        return cur.lastrowid
+
+    def get_user_by_username(self, username):
+        cur = self._conn.execute(
+            "SELECT * FROM Users WHERE username = ?", [username]
+        )
+        row = cur.fetchone()
+        return dict(row) if row else None
+
+    def get_user_by_id(self, user_id):
+        cur = self._conn.execute(
+            "SELECT * FROM Users WHERE id = ?", [user_id]
+        )
+        row = cur.fetchone()
+        return dict(row) if row else None
+
+    def list_users(self):
+        cur = self._conn.execute(
+            "SELECT id, username, role, disabled, email, created_at, password_changed_at "
+            "FROM Users ORDER BY id"
+        )
+        return [dict(row) for row in cur.fetchall()]
+
+    def update_user(self, user_id, username=None, email=None, role=None):
+        fields, values = [], []
+        if username is not None:
+            fields.append("username = ?")
+            values.append(username)
+        if email is not None:
+            fields.append("email = ?")
+            values.append(email)
+        if role is not None:
+            fields.append("role = ?")
+            values.append(role)
+        if not fields:
+            return
+        values.append(user_id)
+        self._conn.execute(f"UPDATE Users SET {', '.join(fields)} WHERE id = ?", values)
+        self._conn.commit()
+
+    def count_users(self):
+        cur = self._conn.execute("SELECT COUNT(*) AS n FROM Users")
+        return cur.fetchone()["n"]
+
+    def update_user_password(self, user_id, password_hash):
+        self._conn.execute(
+            "UPDATE Users SET password_hash = ?, password_changed_at = ? WHERE id = ?",
+            [password_hash, self._now(), user_id],
+        )
+        self._conn.commit()
+
+    def set_user_disabled(self, user_id, disabled: bool):
+        self._conn.execute(
+            "UPDATE Users SET disabled = ? WHERE id = ?",
+            [int(disabled), user_id],
+        )
+        self._conn.commit()
+
+    def count_enabled_admins(self):
+        cur = self._conn.execute(
+            "SELECT COUNT(*) AS n FROM Users WHERE role = 'admin' AND disabled = 0"
+        )
+        return cur.fetchone()["n"]
+
+    def delete_user(self, user_id):
+        self._conn.execute("DELETE FROM Users WHERE id = ?", [user_id])
+        self._conn.commit()
 
     def close(self):
         if self._conn is not None:

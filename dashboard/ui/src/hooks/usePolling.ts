@@ -12,10 +12,17 @@ export function usePolling(
   }, [callback]);
 
   useEffect(() => {
-    function tick() {
-      void savedCallback.current();
+    let isRunning = false;
+    async function tick() {
+      if (isRunning) return;
+      isRunning = true;
+      try {
+        await savedCallback.current();
+      } finally {
+        isRunning = false;
+      }
     }
-    if (immediate) tick();
+    if (immediate) void tick();
     const id = setInterval(tick, intervalMs);
     return () => clearInterval(id);
   }, [intervalMs, immediate]);

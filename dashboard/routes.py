@@ -7,14 +7,18 @@ import json as _json
 
 from flask import Blueprint, jsonify, render_template, request, abort, redirect, url_for, send_from_directory
 
+from dashboard.auth import login_required, role_required
+
 _REACT_INDEX = Path(__file__).parent / "ui" / "dist" / "index.html"
 
-_ADSBX_URL = "https://api.adsb.lol/v2/lat/48.85/lon/2.35/dist/500"
+_ADSBX_URL = "https://api.adsb.lol/v2/lat/48.85/lon/2.35/dist/150"
 
 # Bounding box filter applied after fetch (lat/lon degrees).
-# Covers the Paris/Western Europe region (approx. 500 nm around Paris).
-_ADSBX_LAT_MIN, _ADSBX_LAT_MAX = 40.0, 58.0
-_ADSBX_LON_MIN, _ADSBX_LON_MAX = -10.0, 20.0
+# Covers the Paris/Western Europe region (approx. 150 nm around Paris).
+_ADSBX_LAT_MIN, _ADSBX_LAT_MAX = 46.0, 51.5
+_ADSBX_LON_MIN, _ADSBX_LON_MAX = -1.0, 6.0
+
+_ADSBX_MAX_AIRCRAFT = 300
 
 _live_cache: dict = {"data": [], "error": None, "ts": 0.0}
 _bg_started = False
@@ -54,7 +58,7 @@ def _fetch_adsbexchange() -> None:
                 "heading_deg":    ac.get("track"),
                 "vertical_rate":  vert_mps,
             })
-            if len(aircraft) >= 1500:
+            if len(aircraft) >= _ADSBX_MAX_AIRCRAFT:
                 break
         _live_cache.update({"data": aircraft, "error": None, "ts": time.monotonic()})
     except urllib.error.HTTPError as exc:
@@ -100,20 +104,24 @@ def build_blueprint(db):
         )
 
     @bp.route("/api/alerts")
+    @login_required
     def api_alerts():
         limit = request.args.get("limit", 50, type=int)
         return jsonify(db.get_recent_alerts(limit=limit))
 
     @bp.route("/api/telemetry")
+    @login_required
     def api_telemetry():
         rows = db.get_recent_telemetry(limit=1)
         return jsonify(rows[0] if rows else None)
 
     @bp.route("/api/aircraft-positions")
+    @login_required
     def api_aircraft_positions():
         return jsonify(db.get_aircraft_positions())
 
     @bp.route("/api/flight-trail")
+    @login_required
     def api_flight_trail():
         node_id = request.args.get("node_id", "")
         limit = request.args.get("limit", 100, type=int)
@@ -122,6 +130,7 @@ def build_blueprint(db):
         return jsonify(db.get_flight_trail(node_id, limit=limit))
 
     @bp.route("/api/report", methods=["POST"])
+    @role_required("admin")
     def api_report():
         from guardian.report_generator import generate_report, DEFAULT_REPORT_PATH
         try:
@@ -133,6 +142,7 @@ def build_blueprint(db):
             return jsonify({"error": f"Report generation failed: {exc}"}), 500
 
     @bp.route("/api/geofence")
+    @login_required
     def api_geofence():
         from guardian.config import get_config
         cfg = get_config().get("geofence", {})
@@ -144,12 +154,14 @@ def build_blueprint(db):
     _start_traffic_background(interval=30)
 
     @bp.route("/api/live-traffic")
+    @login_required
     def api_live_traffic():
         if _live_cache["error"] and not _live_cache["data"]:
             return jsonify({"error": _live_cache["error"]}), 503
         return jsonify(_live_cache["data"])
 
     @bp.route("/api/alerts/<int:alert_id>")
+    @login_required
     def api_alert_by_id(alert_id):
         record = db.get_alert_by_id(alert_id)
         if record is None:
@@ -157,6 +169,7 @@ def build_blueprint(db):
         return jsonify(record)
 
     @bp.route("/api/alerts/<int:alert_id>/confirm", methods=["POST"])
+    @role_required("admin")
     def api_alert_confirm(alert_id):
         record = db.get_alert_by_id(alert_id)
         if record is None:
@@ -171,6 +184,7 @@ def build_blueprint(db):
         return jsonify({"status": "ok", "alert_id": alert_id, "confirmed": new_confirmed})
 
     @bp.route("/api/alerts/<int:alert_id>/action", methods=["POST"])
+    @role_required("admin")
     def api_alert_action(alert_id):
         record = db.get_alert_by_id(alert_id)
         if record is None:

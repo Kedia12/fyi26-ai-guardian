@@ -57,3 +57,9 @@ export interface TrailPoint {
   gps_lon_deg: number;
 }
 
+export interface User {
+  id: number;
+  username: string;
+  role: 'admin' | 'user';
+}
+

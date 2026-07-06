@@ -173,6 +173,21 @@ make dashboard
 
 Open your browser at: **http://localhost:5000**
 
+**Step 5 — Log in.** The dashboard requires a login with two roles: **Admin** (full control — confirm/acknowledge/escalate/resolve alerts, generate AI reports, manage users) and **User** (view-only). On first run, if no accounts exist yet, a default admin account is auto-created.
+
+Current admin login for this project's database:
+```
+Username: admin
+Password: Admin@123
+```
+
+To set your own admin credentials on a fresh database instead, set these environment variables before starting the server:
+```bash
+export GUARDIAN_ADMIN_USERNAME=admin
+export GUARDIAN_ADMIN_PASSWORD=your-password-here
+```
+If `GUARDIAN_ADMIN_PASSWORD` isn't set, a random password is generated and printed once to the terminal on first startup — save it, since it isn't stored anywhere else. Once logged in as Admin, use the **Manage Users** button in the header to create additional Admin or User accounts.
+
 ---
 
 ## Live ingestion modes

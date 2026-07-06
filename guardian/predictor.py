@@ -72,7 +72,7 @@ def predict_battery_depletion(buffer: TelemetryBuffer, row: dict) -> list[dict]:
 
     mask = ~(np.isnan(t) | np.isnan(v))
     t, v = t[mask], v[mask]
-    if len(t) < 2:
+    if len(t) < 2 or np.ptp(t) == 0:
         return []
 
     t_norm = t - t[0]
@@ -128,7 +128,7 @@ def predict_imu_drift(buffer: TelemetryBuffer, row: dict) -> list[dict]:
     t_mask = ~np.isnan(t)
     t = t[t_mask]
     gx, gy, gz = gx[t_mask], gy[t_mask], gz[t_mask]
-    if len(t) < 2:
+    if len(t) < 2 or np.ptp(t) == 0:
         return []
 
     mag = np.sqrt(gx ** 2 + gy ** 2 + gz ** 2)

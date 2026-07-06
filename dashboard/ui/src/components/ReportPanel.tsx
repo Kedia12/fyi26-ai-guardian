@@ -1,8 +1,13 @@
 import { useState } from 'react';
+import { createPortal } from 'react-dom';
 
 type ReportState = 'idle' | 'loading' | 'done' | 'error';
 
-export default function ReportPanel() {
+interface Props {
+  isAdmin: boolean;
+}
+
+export default function ReportPanel({ isAdmin }: Props) {
   const [state, setState] = useState<ReportState>('idle');
   const [report, setReport] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
@@ -52,21 +57,25 @@ export default function ReportPanel() {
               View report
             </button>
           )}
-          <button
-            onClick={handleGenerate}
-            disabled={state === 'loading'}
-            className="px-3 py-1.5 rounded text-xs font-semibold transition-colors
-              bg-[#2b6cb0] hover:bg-[#2c5282] disabled:opacity-50 disabled:cursor-not-allowed
-              text-white"
-          >
-            {state === 'loading' ? 'Generating…' : 'Generate Report'}
-          </button>
+          {isAdmin ? (
+            <button
+              onClick={handleGenerate}
+              disabled={state === 'loading'}
+              className="px-3 py-1.5 rounded text-xs font-semibold transition-colors
+                bg-[#2b6cb0] hover:bg-[#2c5282] disabled:opacity-50 disabled:cursor-not-allowed
+                text-white"
+            >
+              {state === 'loading' ? 'Generating…' : 'Generate Report'}
+            </button>
+          ) : (
+            <span className="text-guardian-muted text-[11px] italic">Admin only</span>
+          )}
         </div>
       </div>
 
-      {modalOpen && (
+      {modalOpen && createPortal(
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70"
+          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/70"
           onClick={() => setModalOpen(false)}
         >
           <div
@@ -90,7 +99,8 @@ export default function ReportPanel() {
               </pre>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );
