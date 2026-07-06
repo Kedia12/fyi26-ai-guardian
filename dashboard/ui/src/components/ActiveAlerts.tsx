@@ -21,7 +21,6 @@ function isPredicted(reasonCode: string): boolean {
 }
 
 export default function ActiveAlerts({ alerts, isAdmin, onConfirm, onAction }: Props) {
-  const [expanded, setExpanded] = useState(false);
   const [busy, setBusy] = useState<number | null>(null);
 
   async function doConfirm(id: number) {
@@ -38,10 +37,7 @@ export default function ActiveAlerts({ alerts, isAdmin, onConfirm, onAction }: P
 
   return (
     <div className="bg-guardian-card border border-guardian-border rounded-lg overflow-hidden">
-      <button
-        onClick={() => setExpanded((e) => !e)}
-        className="w-full bg-guardian-header px-4 py-2.5 border-b border-guardian-border flex items-center justify-between cursor-pointer hover:bg-[#2a2f52] transition-colors"
-      >
+      <div className="w-full bg-guardian-header px-4 py-2.5 border-b border-guardian-border flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className="text-[#90cdf4] text-xs font-bold uppercase tracking-widest">
             Active Alerts
@@ -56,10 +52,9 @@ export default function ActiveAlerts({ alerts, isAdmin, onConfirm, onAction }: P
             {alerts.length}
           </span>
         </div>
-      </button>
+      </div>
 
-      {expanded && (
-        <div className="overflow-x-auto">
+      <div className="overflow-x-auto">
           {alerts.length === 0 ? (
             <p className="text-guardian-dim italic text-sm px-4 py-5 text-center">
               No active alerts.
@@ -157,7 +152,6 @@ export default function ActiveAlerts({ alerts, isAdmin, onConfirm, onAction }: P
             </table>
           )}
         </div>
-      )}
     </div>
   );
 }
