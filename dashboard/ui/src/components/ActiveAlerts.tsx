@@ -56,11 +56,6 @@ export default function ActiveAlerts({ alerts, isAdmin, onConfirm, onAction }: P
             {alerts.length}
           </span>
         </div>
-        <span
-          className={`text-guardian-muted text-xs transition-transform duration-200 ${expanded ? 'rotate-180' : ''}`}
-        >
-          ▼
-        </span>
       </button>
 
       {expanded && (

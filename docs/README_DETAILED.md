@@ -158,12 +158,11 @@ fyi26-ai-guardian/
 │       └── combined_fault.csv
 │
 ├── docs/                           # Architecture and schema documentation
-│   ├── alert_schema.md
 │   ├── architecture.md
 │   ├── dashboard_contract.md       # Interface contract: Guardian → dashboard → database
 │   ├── dashboard_handoff.md        # Handoff summary for dashboard team
 │   ├── database_contract.md        # Data model reference for the database layer
-│   ├── telemetry_schema.md
+│   ├── schemas.md                  # Telemetry and alert field definitions
 │   └── validation_plan.md
 │
 ├── guardian/                       # Core Python package

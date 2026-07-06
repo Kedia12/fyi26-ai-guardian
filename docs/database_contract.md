@@ -34,7 +34,7 @@ Later phase:
 
 ### Source files
 Main reference files:
-- `docs/telemetry_schema.md`
+- `docs/schemas.md`
 - `docs/architecture.md`
 - `docs/dashboard_contract.md`
 
@@ -99,7 +99,7 @@ Source:
 - alert construction in `guardian/alerts.py`
 
 ### Reference files
-- `docs/alert_schema.md`
+- `docs/schemas.md`
 - `docs/dashboard_contract.md`
 
 ### What it looks like
@@ -225,8 +225,8 @@ Store scenario metrics and pass/fail validation outputs
 ## 8. Field consistency requirement
 
 Field names should remain consistent with:
-- `docs/telemetry_schema.md`
-- `docs/alert_schema.md`
+- `docs/schemas.md`
+- `docs/schemas.md`
 - `docs/dashboard_contract.md`
 
 The Guardian currently uses those names directly, so the database should align with them.
@@ -238,8 +238,8 @@ The Guardian currently uses those names directly, so the database should align w
 To start implementation, the database teammate should use these files first:
 
 ### First priority
-- `docs/telemetry_schema.md`
-- `docs/alert_schema.md`
+- `docs/schemas.md`
+- `docs/schemas.md`
 - `docs/database_contract.md`
 
 ### Then inspect actual data examples from:

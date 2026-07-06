@@ -35,8 +35,8 @@ Confirm that the Guardian prototype is coherent, testable, documented, and ready
 ## Documentation
 - [x] README updated
 - [x] architecture.md updated
-- [x] telemetry_schema.md updated
-- [x] alert_schema.md updated
+- [x] schemas.md updated
+- [x] schemas.md updated
 - [x] validation_plan.md added
 - [x] expected_results.md added
 
