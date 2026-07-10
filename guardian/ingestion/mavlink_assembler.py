@@ -21,7 +21,7 @@ _REQUIRED_FIELDS = frozenset({
     "gyro_x_dps", "gyro_y_dps", "gyro_z_dps",
     # Navigation (from GPS_RAW_INT + VFR_HUD)
     "gps_lat_deg", "gps_lon_deg",
-    "gps_speed_mps", "altitude_est_m",
+    "gps_speed_mps", "altitude_est_m", "heading_deg",
     "satellite_count", "gps_fix_status",
     # Power (from SYS_STATUS)
     "battery_voltage_v",
@@ -46,6 +46,16 @@ class MAVLinkAssembler:
         self.low_power_threshold_v = low_power_threshold_v
         self._partial = {}
         self._packet_id = 0
+        self.armed = None
+
+    def set_armed(self, armed):
+        """Record the vehicle's current armed state, from the latest HEARTBEAT.
+
+        Unlike the IMU/GPS/power fields, this isn't reset after each emitted
+        row — HEARTBEAT arrives far less often than the other message types,
+        so armed state persists across rows until the next HEARTBEAT updates it.
+        """
+        self.armed = bool(armed)
 
     def update(self, fields):
         """Merge *fields* into the internal buffer.
@@ -74,6 +84,7 @@ class MAVLinkAssembler:
             "packet_id": self._packet_id,
             "node_id": self.node_id,
             "low_power_flag": 1 if voltage < self.low_power_threshold_v else 0,
+            "armed": self.armed,
         }
         for field in _REQUIRED_FIELDS:
             row[field] = self._partial[field]

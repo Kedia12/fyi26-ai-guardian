@@ -220,16 +220,18 @@ export default function AircraftMap() {
             maxZoom={19}
           />
 
-          {/* Monitored aircraft — blue, larger, north-up (no heading in DB) */}
+          {/* Monitored aircraft — blue, larger, rotated by heading */}
           {positions.map((pos) => {
             const lat = parseFloat(String(pos.gps_lat_deg));
             const lon = parseFloat(String(pos.gps_lon_deg));
             if (isNaN(lat) || isNaN(lon)) return null;
+            const heading =
+              pos.heading_deg != null ? parseFloat(String(pos.heading_deg)) : null;
             return (
               <Marker
                 key={pos.node_id}
                 position={[lat, lon]}
-                icon={getAircraftIcon(null, '#63b3ed', 26)}
+                icon={getAircraftIcon(heading, '#63b3ed', 26)}
               >
                 <Popup>
                   <div style={{ fontFamily: 'monospace', fontSize: '12px', minWidth: '170px', lineHeight: '1.7' }}>
@@ -238,6 +240,8 @@ export default function AircraftMap() {
                     {parseFloat(String(pos.altitude_est_m || 0)).toFixed(1)} m<br />
                     <span style={{ color: '#718096' }}>Speed:</span>{' '}
                     {parseFloat(String(pos.gps_speed_mps || 0)).toFixed(1)} m/s<br />
+                    <span style={{ color: '#718096' }}>Heading:</span>{' '}
+                    {heading != null ? `${heading.toFixed(0)}°` : 'N/A'}<br />
                     <span style={{ color: '#718096' }}>Battery:</span>{' '}
                     {parseFloat(String(pos.battery_voltage_v || 0)).toFixed(2)} V<br />
                     <span style={{ color: '#718096' }}>GPS Fix:</span>{' '}

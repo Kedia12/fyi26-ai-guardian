@@ -16,6 +16,7 @@ export interface Telemetry {
   gyro_y_dps: number;
   gyro_z_dps: number;
   ml_anomaly_score: number | null;
+  armed: boolean | number | null;
 }
 
 export interface Alert {
@@ -38,6 +39,7 @@ export interface AircraftPosition {
   battery_voltage_v: number;
   gps_fix_status: boolean;
   satellite_count: number;
+  heading_deg: number | null;
 }
 
 export interface LiveAircraft {

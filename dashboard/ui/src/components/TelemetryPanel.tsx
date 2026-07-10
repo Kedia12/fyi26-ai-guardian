@@ -94,6 +94,19 @@ export default function TelemetryPanel({ telemetry: d }: Props) {
             value={`${d.timestamp_ms} ms`}
           />
           <MetricCard
+            label="Armed"
+            value={
+              d.armed == null
+                ? 'Unknown'
+                : d.armed
+                  ? '● ARMED'
+                  : '○ DISARMED'
+            }
+            highlight={
+              d.armed == null ? undefined : d.armed ? 'warn' : 'ok'
+            }
+          />
+          <MetricCard
             label="Accel (x/y/z)"
             value={`${parseFloat(String(d.accel_x_g)).toFixed(3)} g`}
             sub={`${parseFloat(String(d.accel_y_g)).toFixed(3)} / ${parseFloat(String(d.accel_z_g)).toFixed(3)} g`}

@@ -15,9 +15,11 @@ GPS_RAW_INT  fix_type          ≥3  → gps_fix_status=1
 GPS_RAW_INT  alt               mm  → gps_alt_m           (÷ 1000, stored in row)
 VFR_HUD      alt                m  → altitude_est_m
 VFR_HUD      groundspeed        m/s→ gps_speed_mps
+VFR_HUD      heading            deg→ heading_deg
 SYS_STATUS   voltage_battery   mV  → battery_voltage_v   (÷ 1000)
 SCALED_PRESSURE temperature    cdeg→ temperature_c       (÷ 100)
 SCALED_PRESSURE press_abs      hPa → pressure_hpa
+HEARTBEAT    base_mode              → armed (persists across rows)
 """
 
 import threading
@@ -153,6 +155,8 @@ class MAVLinkListener:
 
                 if msg_type == "HEARTBEAT":
                     self._heartbeat_monitor.heartbeat_received()
+                    armed = bool(msg.base_mode & _mavutil.mavlink.MAV_MODE_FLAG_SAFETY_ARMED)
+                    assembler.set_armed(armed)
                     continue
 
                 fields = self._extract_fields(msg_type, msg)
@@ -193,6 +197,7 @@ class MAVLinkListener:
             return {
                 "altitude_est_m": msg.alt,
                 "gps_speed_mps": msg.groundspeed,
+                "heading_deg": msg.heading,
             }
         if msg_type == "SYS_STATUS":
             return {

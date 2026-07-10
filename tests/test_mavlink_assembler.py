@@ -22,7 +22,7 @@ def _gps():
     }
 
 def _nav():
-    return {"altitude_est_m": 120.0, "gps_speed_mps": 9.5}
+    return {"altitude_est_m": 120.0, "gps_speed_mps": 9.5, "heading_deg": 270.0}
 
 def _battery(v=11.8):
     return {"battery_voltage_v": v}

@@ -26,6 +26,8 @@ CREATE TABLE IF NOT EXISTS Telemetry (
     temperature_c       REAL,
     pressure_hpa        REAL,
     ml_anomaly_score    REAL,
+    armed               INTEGER,
+    heading_deg         REAL,
     inserted_at         TEXT
 );
 
@@ -107,6 +109,15 @@ class GuardianDB:
         if "password_changed_at" not in existing_user_cols:
             self._conn.execute("ALTER TABLE Users ADD COLUMN password_changed_at TEXT")
 
+        existing_telemetry_cols = {
+            row[1]
+            for row in self._conn.execute("PRAGMA table_info(Telemetry)").fetchall()
+        }
+        if "armed" not in existing_telemetry_cols:
+            self._conn.execute("ALTER TABLE Telemetry ADD COLUMN armed INTEGER")
+        if "heading_deg" not in existing_telemetry_cols:
+            self._conn.execute("ALTER TABLE Telemetry ADD COLUMN heading_deg REAL")
+
     def _now(self):
         return datetime.now(timezone.utc).isoformat()
 
@@ -118,7 +129,8 @@ class GuardianDB:
             "altitude_est_m", "gps_lat_deg", "gps_lon_deg",
             "gps_speed_mps", "satellite_count", "gps_fix_status",
             "battery_voltage_v", "low_power_flag",
-            "temperature_c", "pressure_hpa", "ml_anomaly_score",
+            "temperature_c", "pressure_hpa", "ml_anomaly_score", "armed",
+            "heading_deg",
         ]
         values = [row.get(c) for c in cols]
         placeholders = ", ".join(["?"] * len(cols))
