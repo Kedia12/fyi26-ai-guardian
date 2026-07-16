@@ -4,6 +4,7 @@ import { Alert } from '../types';
 interface Props {
   alerts: Alert[];
   isAdmin: boolean;
+  isConnected: boolean;
   onConfirm: (id: number) => Promise<void>;
   onAction: (id: number, action: string) => Promise<void>;
 }
@@ -20,7 +21,7 @@ function isPredicted(reasonCode: string): boolean {
   return reasonCode?.startsWith('PREDICTED_') ?? false;
 }
 
-export default function ActiveAlerts({ alerts, isAdmin, onConfirm, onAction }: Props) {
+export default function ActiveAlerts({ alerts, isAdmin, isConnected, onConfirm, onAction }: Props) {
   const [busy, setBusy] = useState<number | null>(null);
 
   async function doConfirm(id: number) {
@@ -55,7 +56,11 @@ export default function ActiveAlerts({ alerts, isAdmin, onConfirm, onAction }: P
       </div>
 
       <div className="overflow-x-auto">
-          {alerts.length === 0 ? (
+          {!isConnected ? (
+            <p className="text-guardian-dim italic text-sm px-4 py-5 text-center">
+              Not connected to Mission Planner. Alerts will appear here once a live telemetry link is active.
+            </p>
+          ) : alerts.length === 0 ? (
             <p className="text-guardian-dim italic text-sm px-4 py-5 text-center">
               No active alerts.
             </p>

@@ -12,6 +12,19 @@ interface UserRow {
   password_changed_at: string | null;
 }
 
+function formatTimestamp(value: string | null): string {
+  if (!value) return 'Never';
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return value;
+  return d.toLocaleString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  });
+}
+
 const inputClass =
   'px-3 py-1.5 rounded bg-guardian-header border border-guardian-border text-guardian-text text-xs focus:outline-none focus:border-guardian-accent';
 const labelClass =
@@ -369,9 +382,9 @@ export default function CreateUser() {
                       {u.disabled ? 'Disabled' : 'Active'}
                     </span>
                   </td>
-                  <td className="px-3 py-2 text-guardian-muted">{u.created_at}</td>
+                  <td className="px-3 py-2 text-guardian-muted">{formatTimestamp(u.created_at)}</td>
                   <td className="px-3 py-2 text-guardian-muted">
-                    {u.password_changed_at || 'Never'}
+                    {formatTimestamp(u.password_changed_at)}
                   </td>
                   <td className="px-3 py-2">
                     <div className="flex gap-2">

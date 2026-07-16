@@ -199,6 +199,13 @@ class GuardianDB:
         )
         return [dict(row) for row in cur.fetchall()]
 
+    def get_last_telemetry_time(self):
+        cur = self._conn.execute(
+            "SELECT inserted_at FROM Telemetry ORDER BY id DESC LIMIT 1"
+        )
+        row = cur.fetchone()
+        return row["inserted_at"] if row else None
+
     def get_alert_by_id(self, alert_id):
         cur = self._conn.execute(
             "SELECT * FROM Alerts WHERE id = ?", [alert_id]

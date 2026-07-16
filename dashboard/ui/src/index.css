@@ -27,4 +27,9 @@
 
 .leaflet-container {
   background: #0f1117;
+  /* Leaflet's own controls/panes use z-index up to 1000, which otherwise
+     escapes past app-level overlays (sidebar drawer, modals). Isolating
+     the map into its own stacking context contains that internal layering
+     without having to override each Leaflet z-index individually. */
+  isolation: isolate;
 }

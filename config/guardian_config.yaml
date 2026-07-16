@@ -84,11 +84,13 @@ ingestion:
   serial_baud: 57600
 
   # MAVLink connection string (used when mode: mavlink).
-  # Whichever client connects to port 5760 first unblocks SITL's full boot
-  # and keeps it alive (it exits if this connection drops) — Guardian holds
-  # it since it's long-running. Mission Planner then connects on 5762.
-  # Examples: tcp:127.0.0.1:5760 | udp:0.0.0.0:14551 | serial:COM3:57600
-  mavlink_connection: tcp:127.0.0.1:5760
+  # This build only pushes live outbound telemetry to the FIRST client that
+  # connects to a given SITL port — a second client on the same port gets
+  # accepted at the TCP level but never receives any data (confirmed live).
+  # Whichever of Guardian/Mission Planner connects to 5760 first claims it;
+  # the other must use a different port (5762/5763) to get its own stream.
+  # Examples: tcp:127.0.0.1:5762 | udp:0.0.0.0:14551 | serial:COM3:57600
+  mavlink_connection: tcp:127.0.0.1:5762
 
   # MAVLink system ID to monitor (1 = first/primary autopilot).
   mavlink_system_id: 1
@@ -115,11 +117,11 @@ geofence:
 
   # Polygon vertices defining the allowed operating area (lat/lon pairs).
   # The aircraft must remain INSIDE this polygon; any exit triggers GEOFENCE_BREACH.
-  # Centered on the ArduPilot SITL default home (CMAC, Canberra AU) so live
-  # SITL testing gets a clean baseline instead of an immediate breach; fly
-  # the sim vehicle outside this box to test the alert live.
+  # Centered on the ArduPilot SITL default home (CMAC, Canberra AU), sized
+  # ~20km x 20km so there's plenty of room to fly around in GUIDED mode
+  # without tripping the fence; fly further out to test the alert live.
   polygon:
-    - [-35.3933, 149.1352]
-    - [-35.3933, 149.1952]
-    - [-35.3333, 149.1952]
-    - [-35.3333, 149.1352]
+    - [-35.4531, 149.0551]
+    - [-35.4531, 149.2754]
+    - [-35.2734, 149.2754]
+    - [-35.2734, 149.0551]

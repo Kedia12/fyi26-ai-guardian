@@ -1,87 +1,14 @@
+from datetime import datetime, timezone
 from pathlib import Path
-import threading
-import time
-import urllib.request
-import urllib.error
-import json as _json
 
 from flask import Blueprint, jsonify, render_template, request, abort, redirect, url_for, send_from_directory
 
 from dashboard.auth import login_required, role_required
 
+# How long since the last telemetry packet before we consider the link dead.
+_LIVE_THRESHOLD_SECONDS = 10
+
 _REACT_INDEX = Path(__file__).parent / "ui" / "dist" / "index.html"
-
-_ADSBX_URL = "https://api.adsb.lol/v2/lat/48.85/lon/2.35/dist/150"
-
-# Bounding box filter applied after fetch (lat/lon degrees).
-# Covers the Paris/Western Europe region (approx. 150 nm around Paris).
-_ADSBX_LAT_MIN, _ADSBX_LAT_MAX = 46.0, 51.5
-_ADSBX_LON_MIN, _ADSBX_LON_MAX = -1.0, 6.0
-
-_ADSBX_MAX_AIRCRAFT = 300
-
-_live_cache: dict = {"data": [], "error": None, "ts": 0.0}
-_bg_started = False
-
-
-def _fetch_adsbexchange() -> None:
-    try:
-        req = urllib.request.Request(
-            _ADSBX_URL, headers={"User-Agent": "AI-Guardian-Dashboard/1.0"}
-        )
-        with urllib.request.urlopen(req, timeout=10) as resp:
-            data = _json.loads(resp.read())
-        aircraft = []
-        for ac in data.get("ac") or []:
-            lat = ac.get("lat")
-            lon = ac.get("lon")
-            if lat is None or lon is None:
-                continue
-            if not (_ADSBX_LAT_MIN <= lat <= _ADSBX_LAT_MAX and
-                    _ADSBX_LON_MIN <= lon <= _ADSBX_LON_MAX):
-                continue
-            alt_ft = ac.get("alt_baro") or ac.get("alt_geom")
-            alt_m = float(alt_ft) * 0.3048 if isinstance(alt_ft, (int, float)) else None
-            gs_kt = ac.get("gs")
-            vel_mps = float(gs_kt) * 0.514444 if isinstance(gs_kt, (int, float)) else None
-            baro_rate = ac.get("baro_rate")
-            vert_mps = float(baro_rate) * 0.00508 if isinstance(baro_rate, (int, float)) else None
-            callsign = (ac.get("flight") or "").strip() or ac.get("hex", "")
-            aircraft.append({
-                "icao24":         ac.get("hex", ""),
-                "callsign":       callsign,
-                "origin_country": "",
-                "latitude":       lat,
-                "longitude":      lon,
-                "altitude_m":     alt_m,
-                "velocity_mps":   vel_mps,
-                "heading_deg":    ac.get("track"),
-                "vertical_rate":  vert_mps,
-            })
-            if len(aircraft) >= _ADSBX_MAX_AIRCRAFT:
-                break
-        _live_cache.update({"data": aircraft, "error": None, "ts": time.monotonic()})
-    except urllib.error.HTTPError as exc:
-        _live_cache["error"] = f"ADS-B Exchange HTTP {exc.code}"
-    except urllib.error.URLError as exc:
-        _live_cache["error"] = f"ADS-B Exchange unreachable: {exc.reason}"
-    except Exception as exc:
-        _live_cache["error"] = str(exc)
-
-
-def _start_traffic_background(interval: int = 30) -> None:
-    global _bg_started
-    if _bg_started:
-        return
-    _bg_started = True
-
-    def _loop():
-        while True:
-            _fetch_adsbexchange()
-            time.sleep(interval)
-
-    t = threading.Thread(target=_loop, daemon=True, name="live-traffic-refresh")
-    t.start()
 
 
 def build_blueprint(db):
@@ -108,6 +35,19 @@ def build_blueprint(db):
     def api_alerts():
         limit = request.args.get("limit", 50, type=int)
         return jsonify(db.get_recent_alerts(limit=limit))
+
+    @bp.route("/api/connection-status")
+    @login_required
+    def api_connection_status():
+        last_seen = db.get_last_telemetry_time()
+        live = False
+        if last_seen:
+            try:
+                last_dt = datetime.fromisoformat(last_seen)
+                live = (datetime.now(timezone.utc) - last_dt).total_seconds() <= _LIVE_THRESHOLD_SECONDS
+            except ValueError:
+                live = False
+        return jsonify({"live": live, "last_seen": last_seen})
 
     @bp.route("/api/telemetry")
     @login_required
@@ -150,15 +90,6 @@ def build_blueprint(db):
             "enabled": cfg.get("enabled", False),
             "polygon": cfg.get("polygon", []),
         })
-
-    _start_traffic_background(interval=30)
-
-    @bp.route("/api/live-traffic")
-    @login_required
-    def api_live_traffic():
-        if _live_cache["error"] and not _live_cache["data"]:
-            return jsonify({"error": _live_cache["error"]}), 503
-        return jsonify(_live_cache["data"])
 
     @bp.route("/api/alerts/<int:alert_id>")
     @login_required

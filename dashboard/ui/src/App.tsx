@@ -26,6 +26,7 @@ export default function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [telemetry, setTelemetry] = useState<Telemetry | null>(null);
   const [alerts, setAlerts] = useState<Alert[]>([]);
+  const [connected, setConnected] = useState(false);
 
   const fetchAlerts = useCallback(async () => {
     if (!user) return;
@@ -37,11 +38,20 @@ export default function App() {
     if (!user) return;
     const r = await fetch('/api/telemetry');
     if (r.ok) setTelemetry(await r.json());
-  }, 3000);
+  }, 1000);
 
   usePolling(fetchAlerts, 5000);
 
-  const activeAlerts = alerts.filter((a) => a.alert_status === 'active');
+  usePolling(async () => {
+    if (!user) return;
+    const r = await fetch('/api/connection-status');
+    if (r.ok) {
+      const status = await r.json();
+      setConnected(Boolean(status.live));
+    }
+  }, 2500);
+
+  const activeAlerts = connected ? alerts.filter((a) => a.alert_status === 'active') : [];
   const alertHistory = alerts.filter((a) => a.alert_status !== 'active');
 
   async function handleConfirm(alertId: number) {
@@ -108,11 +118,12 @@ export default function App() {
         </header>
 
         <main className="px-5 pb-5">
-          {activeView === 'telemetry' && <TelemetryPanel telemetry={telemetry} />}
+          {activeView === 'telemetry' && <TelemetryPanel telemetry={telemetry} connected={connected} />}
           {activeView === 'alerts' && (
             <ActiveAlerts
               alerts={activeAlerts}
               isAdmin={isAdmin}
+              isConnected={connected}
               onConfirm={handleConfirm}
               onAction={handleAction}
             />

@@ -2,6 +2,7 @@ import { Telemetry } from '../types';
 
 interface Props {
   telemetry: Telemetry | null;
+  connected: boolean;
 }
 
 function MetricCard({
@@ -39,7 +40,7 @@ function MetricCard({
   );
 }
 
-export default function TelemetryPanel({ telemetry: d }: Props) {
+export default function TelemetryPanel({ telemetry: d, connected }: Props) {
   return (
     <div className="bg-guardian-card border border-guardian-border rounded-lg overflow-hidden">
       <div className="bg-guardian-header px-4 py-2.5 border-b border-guardian-border flex items-center justify-between">
@@ -96,14 +97,17 @@ export default function TelemetryPanel({ telemetry: d }: Props) {
           <MetricCard
             label="Armed"
             value={
-              d.armed == null
-                ? 'Unknown'
-                : d.armed
-                  ? '● ARMED'
-                  : '○ DISARMED'
+              !connected
+                ? '○ DISARMED'
+                : d.armed == null
+                  ? 'Unknown'
+                  : d.armed
+                    ? '● ARMED'
+                    : '○ DISARMED'
             }
+            sub={!connected ? 'no live link' : undefined}
             highlight={
-              d.armed == null ? undefined : d.armed ? 'warn' : 'ok'
+              !connected ? 'ok' : d.armed == null ? undefined : d.armed ? 'warn' : 'ok'
             }
           />
           <MetricCard

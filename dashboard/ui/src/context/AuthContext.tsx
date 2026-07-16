@@ -10,6 +10,28 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+// Explicitly tells the browser's password manager to offer saving these
+// credentials, via the Credential Management API. This is on top of (not a
+// replacement for) the browser's own heuristic form detection — it works
+// even though we submit via fetch() instead of a native form POST, and
+// degrades silently on browsers that don't support the API (e.g. Safari).
+async function storeCredentialForBrowser(username: string, password: string) {
+  const PasswordCredentialCtor = (window as unknown as {
+    PasswordCredential?: new (data: { id: string; password: string; name?: string }) => Credential;
+  }).PasswordCredential;
+
+  if (!navigator.credentials?.store || !PasswordCredentialCtor) {
+    return;
+  }
+  try {
+    const credential = new PasswordCredentialCtor({ id: username, password, name: username });
+    await navigator.credentials.store(credential);
+  } catch {
+    // User dismissed the browser's save-password prompt, or the API
+    // rejected the call for some other reason — nothing to do either way.
+  }
+}
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
@@ -35,12 +57,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return data.error || 'Login failed';
     }
     setUser(data);
+    await storeCredentialForBrowser(username, password);
     return null;
   }, []);
 
   const logout = useCallback(async () => {
     await fetch('/api/logout', { method: 'POST' });
     setUser(null);
+    // Stops the browser from silently re-authenticating with a saved
+    // credential right after an explicit logout.
+    if (navigator.credentials?.preventSilentAccess) {
+      navigator.credentials.preventSilentAccess().catch(() => {});
+    }
   }, []);
 
   return (

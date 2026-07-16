@@ -149,43 +149,17 @@ const aircraftIcon = L.divIcon({
 
 const markers = {};
 const trails = {};
-const liveMarkers = {};
 let centeredOnAircraft = false;
 let monitoredCount = 0;
-let liveTrafficCount = 0;
 
 function updateMapStatus() {
   const t = new Date().toLocaleTimeString();
   const el = document.getElementById('map-status');
-  if (monitoredCount === 0 && liveTrafficCount === 0) {
-    el.textContent = 'Fetching live traffic…';
+  if (monitoredCount === 0) {
+    el.textContent = 'Fetching telemetry…';
   } else {
-    el.textContent = `Monitored: ${monitoredCount} · Live traffic: ${liveTrafficCount} · ${t}`;
+    el.textContent = `Monitored: ${monitoredCount} · ${t}`;
   }
-}
-
-function createLiveIcon(heading) {
-  const rot = heading !== null && heading !== undefined ? heading : 0;
-  return L.divIcon({
-    html: `<span style="display:inline-block;transform:rotate(${rot}deg);font-size:13px;color:#a0aec0;text-shadow:0 0 2px #000;line-height:1;">&#9992;</span>`,
-    className: '',
-    iconSize: [16, 16],
-    iconAnchor: [8, 8],
-    popupAnchor: [0, -10],
-  });
-}
-
-function buildLivePopup(ac) {
-  const alt = ac.altitude_m !== null ? parseFloat(ac.altitude_m).toFixed(0) + ' m' : 'N/A';
-  const spd = ac.velocity_mps !== null ? (parseFloat(ac.velocity_mps) * 1.944).toFixed(0) + ' kt' : 'N/A';
-  const hdg = ac.heading_deg !== null ? parseFloat(ac.heading_deg).toFixed(0) + '°' : 'N/A';
-  return `<div style="font-family:monospace;font-size:12px;min-width:160px;line-height:1.7;">
-    <b style="color:#a0aec0">${ac.callsign}</b> <span style="color:#4a5568;font-size:10px;">${ac.icao24}</span><br>
-    <span style="color:#718096">Country:</span> ${ac.origin_country}<br>
-    <span style="color:#718096">Alt:</span> ${alt}<br>
-    <span style="color:#718096">Speed:</span> ${spd}<br>
-    <span style="color:#718096">Heading:</span> ${hdg}
-  </div>`;
 }
 
 function buildPopup(pos) {
@@ -244,34 +218,6 @@ function updateMap() {
       });
 
       monitoredCount = positions.length;
-      updateMapStatus();
-    }).catch(() => {});
-}
-
-function updateLiveTraffic() {
-  fetch('/api/live-traffic')
-    .then(r => { if (!r.ok) throw new Error('unavailable'); return r.json(); })
-    .then(aircraft => {
-      if (!Array.isArray(aircraft)) return;
-      const seen = new Set();
-      aircraft.forEach(ac => {
-        const lat = parseFloat(ac.latitude);
-        const lon = parseFloat(ac.longitude);
-        if (isNaN(lat) || isNaN(lon)) return;
-        const id = ac.icao24;
-        seen.add(id);
-        const popup = buildLivePopup(ac);
-        const icon = createLiveIcon(ac.heading_deg);
-        if (liveMarkers[id]) {
-          liveMarkers[id].setLatLng([lat, lon]).setPopupContent(popup).setIcon(icon);
-        } else {
-          liveMarkers[id] = L.marker([lat, lon], { icon }).addTo(map).bindPopup(popup);
-        }
-      });
-      Object.keys(liveMarkers).forEach(id => {
-        if (!seen.has(id)) { map.removeLayer(liveMarkers[id]); delete liveMarkers[id]; }
-      });
-      liveTrafficCount = seen.size;
       updateMapStatus();
     }).catch(() => {});
 }
@@ -391,11 +337,9 @@ document.getElementById('alerts-header').addEventListener('click', toggleAlerts)
 updateMap();
 updateTelemetry();
 updateAlerts();
-updateLiveTraffic();
 
 setInterval(updateMap,          3000);
 setInterval(updateTelemetry,    3000);
 setInterval(updateAlerts,       5000);
-setInterval(updateLiveTraffic, 15000);
 </script>
 {% endblock %}

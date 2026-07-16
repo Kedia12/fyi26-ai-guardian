@@ -42,18 +42,6 @@ export interface AircraftPosition {
   heading_deg: number | null;
 }
 
-export interface LiveAircraft {
-  icao24: string;
-  callsign: string;
-  origin_country: string;
-  latitude: number;
-  longitude: number;
-  altitude_m: number | null;
-  velocity_mps: number | null;
-  heading_deg: number | null;
-  vertical_rate: number | null;
-}
-
 export interface TrailPoint {
   gps_lat_deg: number;
   gps_lon_deg: number;

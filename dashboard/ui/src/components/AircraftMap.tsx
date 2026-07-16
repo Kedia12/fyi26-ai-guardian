@@ -8,21 +8,8 @@ import {
   useMap,
 } from 'react-leaflet';
 import L from 'leaflet';
-import { AircraftPosition, LiveAircraft, TrailPoint } from '../types';
+import { AircraftPosition, TrailPoint } from '../types';
 import { usePolling } from '../hooks/usePolling';
-
-// ── Altitude colour scale (matches ADS-B Exchange rainbow) ────────────────────
-function getAltitudeColor(altM: number | null): string {
-  if (altM === null) return '#718096';
-  const a = Math.max(0, altM);
-  if (a < 500)    return '#00e5ff';
-  if (a < 1500)   return '#00e676';
-  if (a < 4000)   return '#c6ff00';
-  if (a < 7000)   return '#ffff00';
-  if (a < 10000)  return '#ff9100';
-  if (a < 13000)  return '#ff1744';
-  return '#d500f9';
-}
 
 // ── SVG airplane icon (Material Design "flight" path, nose points north) ──────
 const _iconCache = new Map<string, L.DivIcon>();
@@ -51,82 +38,30 @@ function getAircraftIcon(heading: number | null, color: string, size = 18): L.Di
   return _iconCache.get(key)!;
 }
 
-// ── Altitude legend ───────────────────────────────────────────────────────────
-const LEGEND_BANDS = [
-  { label: '0 m',       color: '#00e5ff' },
-  { label: '500 m',     color: '#00e676' },
-  { label: '1 500 m',   color: '#c6ff00' },
-  { label: '4 000 m',   color: '#ffff00' },
-  { label: '7 000 m',   color: '#ff9100' },
-  { label: '10 000 m',  color: '#ff1744' },
-  { label: '13 000+ m', color: '#d500f9' },
-];
-
-function AltitudeLegend() {
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        bottom: 28,
-        right: 10,
-        zIndex: 1000,
-        background: 'rgba(26,29,46,0.90)',
-        border: '1px solid #2d3748',
-        borderRadius: 6,
-        padding: '8px 10px',
-        fontSize: 10,
-        backdropFilter: 'blur(4px)',
-        pointerEvents: 'none',
-      }}
-    >
-      <div
-        style={{
-          fontWeight: 700,
-          letterSpacing: '0.08em',
-          textTransform: 'uppercase',
-          marginBottom: 6,
-          color: '#90cdf4',
-          fontSize: 9,
-        }}
-      >
-        Altitude
-      </div>
-      {LEGEND_BANDS.map((b) => (
-        <div
-          key={b.label}
-          style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 3 }}
-        >
-          <div
-            style={{
-              width: 10,
-              height: 10,
-              borderRadius: 2,
-              background: b.color,
-              flexShrink: 0,
-              boxShadow: `0 0 4px ${b.color}80`,
-            }}
-          />
-          <span style={{ color: '#a0aec0', fontFamily: 'monospace' }}>{b.label}</span>
-        </div>
-      ))}
-    </div>
-  );
-}
-
-// ── Map auto-center on first monitored aircraft ───────────────────────────────
+// ── Map auto-center on first monitored aircraft, then re-center whenever it
+// drifts outside the currently visible bounds (without fighting manual
+// pan/zoom while the aircraft is still on screen) ──────────────────────────
 function MapAutoCenter({ positions }: { positions: AircraftPosition[] }) {
   const map = useMap();
-  const centered = useRef(false);
+  const hasCenteredOnce = useRef(false);
 
   useEffect(() => {
-    if (!centered.current && positions.length > 0) {
-      const pos = positions[0];
-      const lat = parseFloat(String(pos.gps_lat_deg));
-      const lon = parseFloat(String(pos.gps_lon_deg));
-      if (!isNaN(lat) && !isNaN(lon)) {
-        map.setView([lat, lon], 14);
-        centered.current = true;
-      }
+    if (positions.length === 0) return;
+    const pos = positions[0];
+    const lat = parseFloat(String(pos.gps_lat_deg));
+    const lon = parseFloat(String(pos.gps_lon_deg));
+    if (isNaN(lat) || isNaN(lon)) return;
+
+    const latlng = L.latLng(lat, lon);
+
+    if (!hasCenteredOnce.current) {
+      map.setView(latlng, 14);
+      hasCenteredOnce.current = true;
+      return;
+    }
+
+    if (!map.getBounds().contains(latlng)) {
+      map.panTo(latlng);
     }
   }, [positions, map]);
 
@@ -139,7 +74,6 @@ type Trails = Record<string, [number, number][]>;
 // ── Main component ────────────────────────────────────────────────────────────
 export default function AircraftMap() {
   const [positions, setPositions] = useState<AircraftPosition[]>([]);
-  const [liveAircraft, setLiveAircraft] = useState<LiveAircraft[]>([]);
   const [trails, setTrails] = useState<Trails>({});
   const [statusTime, setStatusTime] = useState('');
   usePolling(async () => {
@@ -176,25 +110,14 @@ export default function AircraftMap() {
       }
       return next;
     });
-  }, 5000);
-
-  usePolling(async () => {
-    const r = await fetch('/api/live-traffic');
-    if (!r.ok) return;
-    const data = await r.json();
-    if (Array.isArray(data)) {
-      setLiveAircraft(
-        data.filter((ac: LiveAircraft) => ac.latitude != null && ac.longitude != null),
-      );
-    }
-  }, 30000);
+  }, 500);
 
   const statusText = useMemo(() => {
-    if (positions.length > 0 || liveAircraft.length > 0) {
-      return `Monitored: ${positions.length} · Live: ${liveAircraft.length} · ${statusTime}`;
+    if (positions.length > 0) {
+      return `Monitored: ${positions.length} · ${statusTime}`;
     }
-    return 'Fetching live traffic…';
-  }, [positions.length, liveAircraft.length, statusTime]);
+    return 'Fetching telemetry…';
+  }, [positions.length, statusTime]);
 
   return (
     <div className="bg-guardian-card border border-guardian-border rounded-lg overflow-hidden">
@@ -209,7 +132,7 @@ export default function AircraftMap() {
         <MapContainer
           center={[50, 10]}
           zoom={5}
-          style={{ height: '420px', width: '100%' }}
+          className="h-[480px] sm:h-[600px] lg:h-[720px] w-full"
           zoomControl
         >
           <MapAutoCenter positions={positions} />
@@ -220,7 +143,7 @@ export default function AircraftMap() {
             maxZoom={19}
           />
 
-          {/* Monitored aircraft — blue, larger, rotated by heading */}
+          {/* Monitored aircraft — blue, rotated by heading */}
           {positions.map((pos) => {
             const lat = parseFloat(String(pos.gps_lat_deg));
             const lon = parseFloat(String(pos.gps_lon_deg));
@@ -267,38 +190,7 @@ export default function AircraftMap() {
               />
             ) : null,
           )}
-
-          {/* Live traffic — altitude-coloured SVG icons rotated by heading */}
-          {liveAircraft.map((ac) => (
-            <Marker
-              key={ac.icao24}
-              position={[ac.latitude, ac.longitude]}
-              icon={getAircraftIcon(ac.heading_deg, getAltitudeColor(ac.altitude_m), 18)}
-            >
-              <Popup>
-                <div style={{ fontFamily: 'monospace', fontSize: '12px', minWidth: '160px', lineHeight: '1.7' }}>
-                  <b style={{ color: getAltitudeColor(ac.altitude_m) }}>{ac.callsign}</b>{' '}
-                  <span style={{ color: '#4a5568', fontSize: '10px' }}>{ac.icao24}</span><br />
-                  <span style={{ color: '#718096' }}>Alt:</span>{' '}
-                  {ac.altitude_m != null
-                    ? `${parseFloat(String(ac.altitude_m)).toFixed(0)} m`
-                    : 'N/A'}<br />
-                  <span style={{ color: '#718096' }}>Speed:</span>{' '}
-                  {ac.velocity_mps != null
-                    ? `${(parseFloat(String(ac.velocity_mps)) * 1.944).toFixed(0)} kt`
-                    : 'N/A'}<br />
-                  <span style={{ color: '#718096' }}>Heading:</span>{' '}
-                  {ac.heading_deg != null
-                    ? `${parseFloat(String(ac.heading_deg)).toFixed(0)}°`
-                    : 'N/A'}
-                </div>
-              </Popup>
-            </Marker>
-          ))}
-
         </MapContainer>
-
-        <AltitudeLegend />
       </div>
     </div>
   );
